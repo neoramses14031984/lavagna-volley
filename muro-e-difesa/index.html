@@ -579,7 +579,7 @@ let drag=null;
 function svgPoint(svg,e){ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
 for(const id of ALL){
   const g=M.toks[id]; g.style.cursor="grab";
-  g.addEventListener("pointerdown",e=>{ e.preventDefault(); g.setPointerCapture(e.pointerId); const p=svgPoint(mSvg,e); drag={g,dx:g._x-p.x,dy:g._y-p.y}; g.classList.add("dragging"); g.parentNode.appendChild(g); g.classList.remove("hit","ok"); });
+  g.addEventListener("pointerdown",e=>{ e.preventDefault(); if(g.parentNode.lastChild!==g) g.parentNode.appendChild(g); g.setPointerCapture(e.pointerId); const p=svgPoint(mSvg,e); drag={g,dx:g._x-p.x,dy:g._y-p.y}; g.classList.add("dragging"); g.classList.remove("hit","ok"); });
   g.addEventListener("pointermove",e=>{ if(!drag||drag.g!==g) return; const p=svgPoint(mSvg,e); place(g, Math.max(-20,Math.min(920,p.x+drag.dx)), Math.max(0,Math.min(1080,p.y+drag.dy))); });
   const end=()=>{ if(drag&&drag.g===g){ g.classList.remove("dragging"); drag=null; } };
   g.addEventListener("pointerup",end); g.addEventListener("pointercancel",end);

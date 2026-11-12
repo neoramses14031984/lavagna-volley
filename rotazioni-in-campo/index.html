@@ -502,9 +502,9 @@ function svgPoint(svg, e){ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.cl
 for(const id of ALL){
   const g=putToks[id]; g.style.cursor="grab";
   g.addEventListener("pointerdown",e=>{
-    e.preventDefault(); g.setPointerCapture(e.pointerId);
+    e.preventDefault(); if(g.parentNode.lastChild!==g) g.parentNode.appendChild(g); g.setPointerCapture(e.pointerId);
     const p=svgPoint(putSvg,e); drag={g,dx:g._x-p.x,dy:g._y-p.y}; g.classList.add("dragging");
-    g.parentNode.appendChild(g); g.classList.remove("hit","ok");
+    g.classList.remove("hit","ok");
   });
   g.addEventListener("pointermove",e=>{ if(!drag||drag.g!==g) return; const p=svgPoint(putSvg,e);
     const x=Math.max(-20,Math.min(920,p.x+drag.dx)), y=Math.max(-20,Math.min(1080,p.y+drag.dy)); place(g,x,y); });
