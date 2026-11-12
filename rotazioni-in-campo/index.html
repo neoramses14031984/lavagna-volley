@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotazioni in campo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0f1d33;
+  --panel:#172a4b;
+  --line:#2a4069;
+  --text:#eef2f8;
+  --muted:#a3b3cf;
+  --court:#e2843f;
+  --freezone:#2563a8;
+  --ball:#ffd23f;
+  --libero:#2ec4b6;
+  --good:#4cc38a;
+  --bad:#ff6b6b;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--night);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-direction:column;gap:2px}
+a.home{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.5px;color:var(--night);background:var(--ball);text-decoration:none;border-radius:10px;padding:8px 14px 7px 12px;margin-bottom:10px;line-height:1}
+a.home:hover{filter:brightness(1.06)}
+a.home:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:.5px;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--ball)}
+.sub{color:var(--muted);font-size:15px;margin:0}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;position:sticky;top:0;z-index:5;background:var(--night);padding:8px 0}
+nav a{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;text-align:center;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 4px;line-height:1.05}
+nav a[aria-current="page"]{color:var(--night);background:var(--ball);border-color:var(--ball)}
+nav a:focus-visible,button:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+section[hidden]{display:none}
+section{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;text-transform:uppercase;margin:0;line-height:1.05}
+.lead{margin:0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button{font-family:var(--body);font-size:15px;font-weight:700;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
+button.chip{padding:7px 12px;font-family:var(--display);font-size:17px;letter-spacing:.5px}
+button.chip[aria-pressed="true"]{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button.primary{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1 1 auto}
+.stage{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stage button{padding:9px 6px;font-size:14px;line-height:1.15}
+.stage button[aria-pressed="true"]{background:var(--libero);color:var(--night);border-color:var(--libero)}
+.courtbox{background:var(--freezone);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+svg.court{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+svg.drag{touch-action:none}
+.tok{transition:transform .75s cubic-bezier(.45,.05,.25,1),opacity .5s}
+.tok.dragging{transition:none}
+.tok circle{stroke-width:6}
+.tok text{font-family:var(--display);font-weight:800;font-size:46px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.tok.hit circle{stroke:var(--bad);stroke-width:14}
+.tok.ok circle{stroke:var(--good);stroke-width:14}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card p{margin:0}
+.card .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ball);font-size:15px}
+.lines{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:15px}
+.lines b{font-family:var(--display);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:14px;text-align:center}
+.zonegrid div{background:var(--night);border-radius:8px;padding:5px 2px}
+.zonegrid small{display:block;color:var(--muted);font-size:12px}
+.zonegrid strong{font-family:var(--display);font-size:20px}
+.score{display:flex;justify-content:space-between;font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase}
+.score span:last-child{color:var(--ball)}
+.feedback{border-left:5px solid var(--line)}
+.feedback.good{border-left-color:var(--good)}
+.feedback.bad{border-left-color:var(--bad)}
+.feedback .verdict{font-family:var(--display);font-size:22px;font-weight:800;text-transform:uppercase}
+.feedback.good .verdict{color:var(--good)}
+.feedback.bad .verdict{color:var(--bad)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;font-weight:400;padding:12px 14px}
+.opts button.right{border-color:var(--good);background:rgba(76,195,138,.18)}
+.opts button.wrong{border-color:var(--bad);background:rgba(255,107,107,.16)}
+.q{font-size:18px;font-weight:700;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.save{display:flex;gap:8px;flex-wrap:wrap}
+.save input{flex:1 1 160px;font:inherit;font-size:16px;color:var(--text);background:var(--night);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.save input:focus-visible{outline:3px solid var(--libero);outline-offset:1px}
+.board{width:100%;border-collapse:collapse;font-size:15px}
+.board th{font-family:var(--display);text-transform:uppercase;letter-spacing:.3px;color:var(--muted);text-align:left;font-weight:700;padding:4px 6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.board td.n{text-align:right;font-family:var(--display);font-size:20px;font-weight:800;color:var(--ball)}
+.board tr:first-child td{font-weight:700}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-top:6px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.tok{transition:none}}
+</style>
+
+<style id="visual-restyling-only">
+:root{--night:#071a34;--panel:#112b4e;--line:#31547f;--text:#f4f7fc;--muted:#b8c8df;--ball:#ffd23f;--libero:#2ec4b6}
+html{min-height:100%;background:#071a34}
+body{min-height:100vh;background-color:#071a34;background-image:linear-gradient(90deg,rgba(4,18,38,.84),rgba(7,26,52,.59) 29%,rgba(7,26,52,.74) 52%,rgba(3,15,33,.79)),linear-gradient(180deg,rgba(6,22,45,.15),rgba(6,22,45,.58)),url("../volley-bg.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat;background-attachment:fixed}
+.wrap{position:relative;max-width:620px;min-height:100vh;padding:28px 22px 44px;background:linear-gradient(180deg,rgba(5,23,47,.70),rgba(8,29,57,.84));border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);box-shadow:0 0 55px rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header{padding:18px;border:1px solid rgba(129,171,230,.22);border-radius:18px;background:linear-gradient(135deg,rgba(22,53,94,.88),rgba(11,34,65,.72));box-shadow:0 14px 35px rgba(0,0,0,.22)}
+a.home{border-radius:999px;box-shadow:0 7px 20px rgba(255,210,63,.18);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}a.home:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(255,210,63,.25)}
+h1{font-size:clamp(38px,8vw,50px);text-shadow:0 3px 18px rgba(0,0,0,.28)}.sub{font-size:16px;color:#c5d3e8}
+nav{top:8px;padding:8px;border:1px solid rgba(129,171,230,.22);border-radius:16px;background:rgba(7,25,51,.88);box-shadow:0 12px 30px rgba(0,0,0,.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+nav a{border-radius:11px;background:rgba(29,63,108,.72);transition:transform .16s ease,background .16s ease,border-color .16s ease}nav a:hover{transform:translateY(-1px);background:rgba(39,81,137,.9);color:#fff}nav a[aria-current="page"]{box-shadow:0 6px 18px rgba(255,210,63,.18)}
+section:not([hidden]){padding:18px;border:1px solid rgba(129,171,230,.20);border-radius:18px;background:linear-gradient(180deg,rgba(11,34,65,.84),rgba(8,28,55,.91));box-shadow:0 16px 40px rgba(0,0,0,.25)}
+h2{font-size:30px;color:#fff}
+button{background:linear-gradient(180deg,rgba(33,70,118,.97),rgba(22,51,91,.97));box-shadow:0 6px 15px rgba(0,0,0,.14);transition:transform .16s ease,filter .16s ease,border-color .16s ease}button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);border-color:rgba(255,255,255,.3)}button:active:not(:disabled){transform:translateY(0)}
+button.primary,button.chip[aria-pressed="true"]{background:linear-gradient(180deg,#ffe06a,#ffc928);box-shadow:0 7px 18px rgba(255,210,63,.2)}.stage button[aria-pressed="true"]{background:linear-gradient(180deg,#45d8c8,#28afaa);box-shadow:0 7px 18px rgba(46,196,182,.18)}
+.card{background:linear-gradient(135deg,rgba(28,61,104,.9),rgba(18,44,79,.85));border-color:rgba(134,177,235,.27);border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.16);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.courtbox{padding:8px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:linear-gradient(145deg,rgba(41,108,173,.94),rgba(22,72,131,.96));box-shadow:0 18px 38px rgba(0,0,0,.33),inset 0 1px 0 rgba(255,255,255,.14);overflow:hidden}
+.save input{background:rgba(4,20,42,.72);border-color:rgba(132,174,232,.28)}footer{padding:14px 8px 0;border-top-color:rgba(129,171,230,.22);color:#b9c8de}
+@media(max-width:700px){body{background-position:36% top;background-attachment:scroll}.wrap{max-width:none;padding:12px 10px 30px;border:0;background:linear-gradient(180deg,rgba(5,22,45,.87),rgba(7,27,53,.94));backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}header,section:not([hidden]){padding:14px;border-radius:15px}nav{top:4px;gap:4px;padding:6px}nav a{font-size:13px;padding:9px 2px}h1{font-size:39px}h2{font-size:27px}}
+@media(max-width:420px){nav{grid-template-columns:repeat(5,minmax(0,1fr))}nav a{font-size:12px;letter-spacing:0}.lines{grid-template-columns:1fr;gap:1px}.lines span{margin-bottom:7px}}
+@media(prefers-reduced-motion:reduce){a.home,nav a,button{transition:none}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="https://neoramses14031984.github.io/lavagna-volley/" aria-label="Torna alla home di Lavagna Volley"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>Home</a>
+    <h1>Rotazioni <span>in campo</span></h1>
+    <p class="sub">Il 5-1 standard, da guardare, provare e indovinare.</p>
+  </header>
+
+  <nav aria-label="Sezioni">
+    <a href="#rotazione" data-view="rotazione">Guarda</a>
+    <a href="#errore" data-view="errore">Trova l'errore</a>
+    <a href="#mettili" data-view="mettili">Mettili tu</a>
+    <a href="#quiz" data-view="quiz">Quiz</a>
+    <a href="#classifica" data-view="classifica">Classi&shy;fica</a>
+  </nav>
+
+  <section id="v-rotazione" aria-labelledby="t-rot">
+    <h2 id="t-rot">Guarda la rotazione</h2>
+    <p class="lead">Scegli la rotazione, poi passa da una fase all'altra. Rete in alto.</p>
+    <div class="chips" id="rotChips" role="group" aria-label="Rotazione"></div>
+    <div class="stage" role="group" aria-label="Fase">
+      <button id="st0" data-stage="0">1 · Ordine nelle zone</button>
+      <button id="st1" data-stage="1">2 · Schieramento in ricezione</button>
+      <button id="st2" data-stage="2">3 · Dopo la battuta: tutti in posizione</button>
+    </div>
+    <div class="courtbox"><svg class="court" id="simSvg" viewBox="-70 -110 1040 1060" role="img" aria-label="Campo con i giocatori"></svg></div>
+    <div class="row">
+      <button id="btnPlay" class="primary">Riproduci le 3 fasi</button>
+      <button id="btnRotate">Ruota ↻</button>
+    </div>
+    <div class="card" id="simInfo" aria-live="polite"></div>
+    <div class="legend">
+      <span><i style="background:var(--ball)"></i>P palleggiatore</span>
+      <span><i style="background:#fff"></i>O opposto, S1 S2 schiacciatori, C1 C2 centrali</span>
+      <span><i style="background:var(--libero)"></i>L libero</span>
+    </div>
+  </section>
+
+  <section id="v-errore" aria-labelledby="t-err" hidden>
+    <h2 id="t-err">Trova l'errore</h2>
+    <p class="lead">Questa squadra sta per ricevere. Se qualcuno è fuori posizione, toccalo. Se è tutto regolare, premi il pulsante sotto il campo.</p>
+    <div class="score"><span id="errRound">Turno 1 di 10</span><span id="errPts">0 punti</span></div>
+    <div class="card"><p class="k" id="errRot">Rotazione</p><div class="zonegrid" id="errZones"></div></div>
+    <div class="courtbox"><svg class="court" id="errSvg" viewBox="-70 -110 1040 1060" role="img" aria-label="Schieramento da controllare"></svg></div>
+    <div class="row">
+      <button id="btnRegular">È tutto regolare</button>
+      <button id="btnNext" class="primary" disabled>Avanti</button>
+    </div>
+    <div class="card feedback" id="errFb" aria-live="polite"><p>Tocca il giocatore fuori posizione, oppure dichiara lo schieramento regolare.</p></div>
+  </section>
+
+  <section id="v-mettili" aria-labelledby="t-put" hidden>
+    <h2 id="t-put">Mettili tu</h2>
+    <p class="lead">Trascina i sei giocatori dalla panchina al campo e crea uno schieramento di ricezione regolare. Le zone qui sotto dicono chi corrisponde a chi. Nella sfida fai punto se lo schieramento è regolare al primo Controlla.</p>
+    <div class="row"><button id="btnChallenge" class="primary">Sfida: tutte e 6 le rotazioni</button></div>
+    <div class="score" id="chScore" hidden><span id="chRound">Rotazione 1 di 6</span><span id="chPts">0 punti</span></div>
+    <div class="chips" id="putChips" role="group" aria-label="Rotazione"></div>
+    <div class="card"><p class="k" id="putRot">Rotazione</p><div class="zonegrid" id="putZones"></div></div>
+    <div class="courtbox"><svg class="court drag" id="putSvg" viewBox="-70 -110 1040 1250" role="img" aria-label="Campo su cui trascinare i giocatori"></svg></div>
+    <div class="row">
+      <button id="btnCheck" class="primary">Controlla</button>
+      <button id="btnShow">Mostra la soluzione</button>
+      <button id="btnReset">Ricomincia</button>
+      <button id="btnRandom">Nuova rotazione a caso</button>
+    </div>
+    <div class="card feedback" id="putFb" aria-live="polite"><p>Quando hai sistemato tutti, premi Controlla.</p></div>
+  </section>
+
+  <section id="v-quiz" aria-labelledby="t-quiz" hidden>
+    <h2 id="t-quiz">Quiz</h2>
+    <div class="score"><span id="qCount">Domanda 1 di 8</span><span id="qPts">0 punti</span></div>
+    <div class="card" id="qBox"></div>
+    <div class="row"><button id="qNext" class="primary" disabled>Avanti</button></div>
+  </section>
+
+  <section id="v-classifica" aria-labelledby="t-cls" hidden>
+    <h2 id="t-cls">Classifica del gruppo</h2>
+    <p class="lead">Il miglior punteggio di ognuno. A fine partita scrivi il tuo nome e premi "Salva in classifica".</p>
+    <div class="row"><button id="clsRefresh">Aggiorna</button></div>
+    <div class="card"><p class="k">Quiz · su 8</p><div id="clsQuiz"><p class="lead">Caricamento...</p></div></div>
+    <div class="card"><p class="k">Trova l'errore · su 10</p><div id="clsErr"><p class="lead">Caricamento...</p></div></div>
+    <div class="card"><p class="k">Mettili tu · sfida su 6</p><div id="clsPut"><p class="lead">Caricamento...</p></div></div>
+  </section>
+
+  <footer>A cura di Agostino Cannavale</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+
+const START = {1:"P",2:"S1",3:"C2",4:"O",5:"S2",6:"C1"};
+const SEQ = ["P1","P6","P5","P4","P3","P2"];
+const RECV = {
+  P1:{O:[30,18],C2:[100,18],S1:[166,96],P:[206,122],L:[112,116],S2:[40,104]},
+  P6:{S2:[36,96],O:[106,16],C2:[192,18],P:[128,46],L:[96,116],S1:[184,108]},
+  P5:{C1:[36,14],P:[24,42],S2:[78,100],O:[192,18],S1:[124,116],L:[186,104]},
+  P4:{P:[14,12],C1:[30,30],S2:[48,98],S1:[112,110],L:[180,104],O:[208,132]},
+  P3:{P:[108,16],C1:[190,16],S1:[36,98],L:[90,116],O:[140,132],S2:[190,104]},
+  P2:{C2:[30,16],S1:[74,100],P:[160,16],O:[20,132],S2:[124,118],L:[186,106]}
+};
+const INFO = {
+  P1:{start:"Palleggiatore in fondo a destra, dietro S1 che arretra a ricevere.",recv:"S2, L, S1",att:"La più scomoda: O a sinistra, S1 a destra. C2 primo tempo, S2 pipe."},
+  P6:{start:"Palleggiatore al centro, subito dietro O.",recv:"S2, L, S1",att:"O va ad attaccare in 2, C2 primo tempo, S2 in 4, S1 pipe."},
+  P5:{start:"Palleggiatore a sinistra, dietro C1: è la corsa più lunga.",recv:"S2, S1, L",att:"S2 in 4, C1 primo tempo, O in 2, S1 pipe."},
+  P4:{start:"Palleggiatore e C1 stretti a sinistra a rete; S2 scende a ricevere sul lato sinistro e gli altri traslano a destra.",recv:"S2, S1, L",att:"S2 in 4, C1 primo tempo, O da seconda linea, S1 pipe."},
+  P3:{start:"Palleggiatore in prima linea al centro: un passo a destra.",recv:"S1, L, S2",att:"S1 in 4, C1 primo tempo, O da seconda linea, S2 pipe."},
+  P2:{start:"Palleggiatore già al punto di alzata; O in fondo a sinistra, dietro C2.",recv:"S1, S2, L",att:"S1 in 4, C2 primo tempo, O passa dietro e attacca da zona 1, S2 pipe."}
+};
+const AT = {
+  left:[6,62],
+  mid:[128,40],
+  right:[218,60],
+  pipe:[112,82],
+  back1:[205,80],
+  cover:[64,116]
+};
+const ATTACK = {
+  P1:{P:"set",O:"left",C2:"mid",S1:"right",S2:"pipe",L:"cover"},
+  P6:{P:"set",S2:"left",C2:"mid",O:"right",S1:"pipe",L:"cover"},
+  P5:{P:"set",S2:"left",C1:"mid",O:"right",S1:"pipe",L:"cover"},
+  P4:{P:"set",S2:"left",C1:"mid",O:"back1",S1:"pipe",L:"cover"},
+  P3:{P:"set",S1:"left",C1:"mid",O:"back1",S2:"pipe",L:"cover"},
+  P2:{P:"set",S1:"left",C2:"mid",O:"back1",S2:"pipe",L:"cover"}
+};
+const VIA = {P2:{O:[200,136]}};
+const ROLEWORD = {left:"attacca in zona 4",mid:"primo tempo",right:"attacca in zona 2",pipe:"pipe da seconda linea",back1:"attacca da zona 1, dietro i 3 m",cover:"copre e difende",set:"alza"};
+const NAMES = {P:"il palleggiatore (P)",O:"l'opposto (O)",S1:"lo schiacciatore S1",S2:"lo schiacciatore S2",C1:"il centrale C1",C2:"il centrale C2",L:"il libero (L)"};
+const ALL = ["P","S1","C2","O","S2","C1","L"];
+const ZC = {4:[37,25],3:[112,25],2:[187,25],5:[37,100],6:[112,100],1:[187,100]};
+const SETPT = [152,20];
+
+const toCm = ([fx,fy]) => [fx*900/224, fy*6];
+
+function zonesOf(idx){
+  let z = Object.assign({}, START);
+  for(let i=0;i<idx;i++){ const n={}; for(const k in z){ const kk=+k; n[kk===1?6:kk-1]=z[k]; } z=n; }
+  return z;
+}
+function liberoFor(z){ return [5,6,1].map(k=>z[k]).find(p=>p[0]==="C"); }
+function shownZones(idx){
+  const z = zonesOf(idx), c = liberoFor(z), s = {};
+  for(const k in z){ s[k] = ([5,6,1].includes(+k) && z[k]===c) ? "L" : z[k]; }
+  return s;
+}
+
+const FB = [[4,5],[3,6],[2,1]], LAT = [[4,3],[3,2],[5,6],[6,1]];
+function violations(pos, sz){
+  const out=[];
+  for(const [f,b] of FB){ const A=pos[sz[f]], B=pos[sz[b]]; if(B[1] < A[1]) out.push({type:"fb",front:f,back:b,amt:A[1]-B[1]}); }
+  for(const [l,r] of LAT){ const A=pos[sz[l]], B=pos[sz[r]]; if(A[0] > B[0]) out.push({type:"lat",left:l,right:r,amt:A[0]-B[0]}); }
+  return out;
+}
+function involved(v, sz){ return v.type==="fb" ? [sz[v.front],sz[v.back]] : [sz[v.left],sz[v.right]]; }
+function explain(v, sz){
+  if(v.type==="fb"){
+    return `${cap(NAMES[sz[v.back]])} (zona ${v.back}) è più vicino alla rete del suo avanti, ${NAMES[sz[v.front]]} (zona ${v.front}).`;
+  }
+  if(v.left===4||v.left===5) return `${cap(NAMES[sz[v.left]])} (zona ${v.left}) deve stare più a sinistra di ${NAMES[sz[v.right]]} (zona ${v.right}).`;
+  return `${cap(NAMES[sz[v.right]])} (zona ${v.right}) deve stare più a destra di ${NAMES[sz[v.left]]} (zona ${v.left}).`;
+}
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+
+function el(tag, attrs, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function drawCourt(svg, opt){
+  svg.textContent="";
+  el("rect",{x:0,y:0,width:900,height:900,fill:"var(--court)"},svg);
+  const zg=el("g",{"font-family":"Saira Condensed, sans-serif","font-weight":"800","font-size":"120",fill:"#000","fill-opacity":".09","text-anchor":"middle","dominant-baseline":"central"},svg);
+  [[4,150,150],[3,450,150],[2,750,150],[5,150,600],[6,450,600],[1,750,600]].forEach(([n,x,y])=>{ const t=el("text",{x:x,y:y},zg); t.textContent=n; });
+  el("rect",{x:0,y:0,width:900,height:900,fill:"none",stroke:"#fff","stroke-width":10},svg);
+  el("line",{x1:0,x2:900,y1:300,y2:300,stroke:"#fff","stroke-width":10},svg);
+  el("rect",{x:-40,y:-26,width:980,height:26,fill:"#0b1426"},svg);
+  el("line",{x1:-40,x2:940,y1:-26,y2:-26,stroke:"#fff","stroke-width":8},svg);
+  el("line",{x1:0,x2:0,y1:-90,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+  el("line",{x1:900,x2:900,y1:-90,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+  const lab=el("text",{x:450,y:-48,"text-anchor":"middle","font-family":"Saira Condensed, sans-serif","font-weight":"700","font-size":"38",fill:"#fff","letter-spacing":"6"},svg);
+  lab.textContent="RETE";
+  const l3=el("text",{x:890,y:285,"text-anchor":"end","font-family":"Atkinson Hyperlegible, sans-serif","font-size":"28",fill:"#fff","fill-opacity":".85"},svg);
+  l3.textContent="linea dei 3 m";
+  if(opt && opt.bench){
+    el("rect",{x:-40,y:960,width:980,height:150,rx:24,fill:"#0b1426","fill-opacity":".55"},svg);
+    const b=el("text",{x:450,y:1135,"text-anchor":"middle","font-family":"Saira Condensed, sans-serif","font-weight":"700","font-size":"32",fill:"#fff","fill-opacity":".8","letter-spacing":"4"},svg);
+    b.textContent="PANCHINA";
+  }
+  el("g",{id:svg.id+"-fx"},svg);
+  const layer=el("g",{id:svg.id+"-tok"},svg);
+  const toks={};
+  for(const id of ALL){
+    const g=el("g",{class:"tok","data-id":id},layer);
+    const fill = id==="P" ? "var(--ball)" : id==="L" ? "var(--libero)" : "#fff";
+    el("circle",{r:54,cx:0,cy:0,fill:fill,stroke:"#0b1426"},g);
+    const t=el("text",{x:0,y:2,fill:"#0b1426"},g); t.textContent=id;
+    toks[id]=g;
+  }
+  return toks;
+}
+function place(g, x, y){ g.style.transform=`translate(${x}px, ${y}px)`; g._x=x; g._y=y; }
+function show(g, on){ g.style.opacity = on ? "1" : "0"; g.style.pointerEvents = on ? "" : "none"; }
+
+function zoneCard(box, idx){
+  const sz=shownZones(idx), z=zonesOf(idx), c=liberoFor(z);
+  box.textContent="";
+  [4,3,2,5,6,1].forEach(n=>{
+    const d=document.createElement("div");
+    d.innerHTML=`<small>zona ${n}</small><strong>${sz[n]}</strong>`;
+    box.appendChild(d);
+  });
+  return c;
+}
+
+const VIEWS=["rotazione","errore","mettili","quiz","classifica"];
+function route(){
+  let v=(location.hash||"").replace("#","");
+  if(!VIEWS.includes(v)) v="rotazione";
+  VIEWS.forEach(n=>{ document.getElementById("v-"+n).hidden = n!==v; });
+  document.querySelectorAll("nav a").forEach(a=>{ if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  state.view=v;
+}
+
+const state = {view:"rotazione", simIdx:0, simStage:1, putIdx:Math.floor(Math.random()*6)};
+
+const simSvg=document.getElementById("simSvg");
+const simToks=drawCourt(simSvg);
+const simFx=document.getElementById("simSvg-fx");
+const rotChips=document.getElementById("rotChips");
+SEQ.forEach((n,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=n; b.addEventListener("click",()=>{ stopPlay(); state.simIdx=i; renderSim(); }); rotChips.appendChild(b); });
+document.querySelectorAll(".stage button").forEach(b=>b.addEventListener("click",()=>{ stopPlay(); state.simStage=+b.dataset.stage; renderSim(); }));
+let playTimer=null;
+function stopPlay(){ if(playTimer){ clearTimeout(playTimer); playTimer=null; } }
+document.getElementById("btnPlay").addEventListener("click",()=>{
+  stopPlay(); state.simStage=0; renderSim();
+  playTimer=setTimeout(()=>{ state.simStage=1; renderSim(); playTimer=setTimeout(()=>{ state.simStage=2; renderSim(); playTimer=null; },1500); },1500);
+});
+document.getElementById("btnRotate").addEventListener("click",()=>{ stopPlay(); state.simIdx=(state.simIdx+1)%6; state.simStage=0; renderSim(); });
+
+function renderSim(){
+  const idx=state.simIdx, name=SEQ[idx], z=zonesOf(idx), sz=shownZones(idx), c=liberoFor(z);
+  [...rotChips.children].forEach((b,i)=>b.setAttribute("aria-pressed", i===idx));
+  document.querySelectorAll(".stage button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.stage===state.simStage));
+  simFx.textContent="";
+  for(const k in z){ if(z[k]===c){ const [x,y]=toCm(ZC[k]); place(simToks[c],x,y); show(simToks[c],false); } }
+  const benchC = c;
+  for(const id of ALL){
+    if(id===benchC) continue;
+    let xy;
+    if(state.simStage===0){ const zone=+Object.keys(sz).find(k=>sz[k]===id); xy=toCm(ZC[zone]); }
+    else if(state.simStage===1){ xy=toCm(RECV[name][id]); }
+    else { const r=ATTACK[name][id]; xy = r==="set" ? (name==="P2" ? toCm(RECV.P2.P) : toCm(SETPT)) : toCm(AT[r]); }
+    const via = state.simStage===2 && VIA[name] && VIA[name][id];
+    if(via){ const v=toCm(via), g=simToks[id], fin=xy; place(g,v[0],v[1]); show(g,true); clearTimeout(g._t); g._t=setTimeout(()=>{ if(state.simStage===2 && SEQ[state.simIdx]===name) place(g,fin[0],fin[1]); },750); }
+    else { clearTimeout(simToks[id]._t); place(simToks[id],xy[0],xy[1]); show(simToks[id],true); }
+  }
+  if(state.simStage===2){
+    for(const id in ATTACK[name]){
+      const a=toCm(RECV[name][id]), r=ATTACK[name][id];
+      const b = r==="set" ? (name==="P2" ? a : toCm(SETPT)) : toCm(AT[r]);
+      if(Math.hypot(a[0]-b[0],a[1]-b[1])<30) continue;
+      const isP=id==="P";
+      const via=VIA[name] && VIA[name][id];
+      if(via){ const v=toCm(via); el("polyline",{points:`${a[0]},${a[1]} ${v[0]},${v[1]} ${b[0]},${b[1]}`,fill:"none",stroke:"#fff","stroke-width":7,"stroke-dasharray":"16 14","stroke-linecap":"round","stroke-linejoin":"round",opacity:".7"},simFx); continue; }
+      el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:isP?"var(--ball)":"#fff","stroke-width":isP?10:7,"stroke-dasharray":isP?"26 18":"16 14","stroke-linecap":"round",opacity:isP?".95":".7"},simFx);
+    }
+    const s=toCm(SETPT);
+    el("circle",{cx:s[0],cy:s[1],r:78,fill:"none",stroke:"#fff","stroke-width":5,"stroke-dasharray":"10 10",opacity:".8"},simFx);
+  }
+  const front=[4,3,2].map(n=>sz[n]).join(", "), back=[5,6,1].map(n=>sz[n]).join(", ");
+  const phase = ["Le zone: chi è davanti a chi. Premendo Ruota tutti si spostano di un posto in senso orario.",
+                 "Lo schieramento di ricezione, regolare al colpo di battuta avversario.",
+                 "Dopo il colpo di battuta ognuno può andare ovunque: " + (name==="P2" ? "il palleggiatore è già al punto di alzata" : (["P1","P6","P5"].includes(name) ? "il palleggiatore penetra fino al punto di alzata" : "il palleggiatore si sposta lungo la rete al punto di alzata")) + ", gli altri vanno nelle posizioni da cui partono per attaccare o coprire."][state.simStage];
+  const roles = state.simStage===2 ? `<b>Dopo la battuta</b><span>${Object.keys(ATTACK[name]).filter(id=>id!=="P").map(id=>`${id} ${ROLEWORD[ATTACK[name][id]]}`).join(" · ")}</span>` : "";
+  document.getElementById("simInfo").innerHTML =
+    `<p class="k">${name} · palleggiatore in zona ${name.slice(1)}${["P1","P6","P5"].includes(name)?" · con penetrazione":""}</p>
+     <p>${phase}</p>
+     <div class="lines"><b>Prima linea</b><span>${front}</span><b>Seconda linea</b><span>${back} · il libero entra per ${c}</span><b>Partenza</b><span>${INFO[name].start}</span><b>Ricevono</b><span>${INFO[name].recv}</span><b>Attacco</b><span>${INFO[name].att}</span>${roles}</div>`;
+}
+
+const errSvg=document.getElementById("errSvg");
+const errToks=drawCourt(errSvg);
+const err={round:0,pts:0,done:false,cur:null};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+function makeRound(){
+  const idx=Math.floor(Math.random()*6), name=SEQ[idx], sz=shownZones(idx);
+  const base={}; for(const id in RECV[name]) base[id]=toCm(RECV[name][id]);
+  const ids=Object.keys(base);
+  const wantFault = Math.random() < 0.72;
+  for(let tries=0;tries<4000;tries++){
+    const who=ids[Math.floor(Math.random()*ids.length)];
+    const np=[rnd(70,830),rnd(70,830)];
+    if(ids.some(o=>o!==who && dist(np,base[o])<140)) continue;
+    const pos=Object.assign({},base,{[who]:np});
+    const v=violations(pos,sz);
+    if(wantFault){
+      if(!v.length) continue;
+      if(v.some(x=>x.amt<70)) continue;
+      return {idx,name,sz,pos,v,moved:who};
+    } else {
+      if(v.length) continue;
+      let tight=false;
+      for(const [f,b] of FB){ if(pos[sz[b]][1]-pos[sz[f]][1] < 40) tight=true; }
+      for(const [l,r] of LAT){ if(pos[sz[r]][0]-pos[sz[l]][0] < 40) tight=true; }
+      if(tight) continue;
+      return {idx,name,sz,pos,v:[],moved:null};
+    }
+  }
+  const pos=base; return {idx,name,sz,pos,v:[],moved:null};
+}
+function renderErr(){
+  const r=err.cur;
+  document.getElementById("errRound").textContent=`Turno ${err.round+1} di 10`;
+  document.getElementById("errPts").textContent=`${err.pts} punti`;
+  document.getElementById("errRot").textContent=`${r.name} · zone di questa rotazione`;
+  zoneCard(document.getElementById("errZones"), r.idx);
+  const c=liberoFor(zonesOf(r.idx));
+  for(const id of ALL){
+    const g=errToks[id]; g.classList.remove("hit","ok");
+    if(id===c){ show(g,false); continue; }
+    place(g,r.pos[id][0],r.pos[id][1]); show(g,true);
+  }
+}
+function newErr(){ err.cur=makeRound(); err.done=false; renderErr();
+  document.getElementById("btnNext").disabled=true; document.getElementById("btnRegular").disabled=false;
+  const fb=document.getElementById("errFb"); fb.className="card feedback"; fb.innerHTML="<p>Tocca il giocatore fuori posizione, oppure dichiara lo schieramento regolare.</p>"; }
+function answerErr(tapped){
+  if(err.done) return; err.done=true;
+  const r=err.cur, fb=document.getElementById("errFb");
+  const culprits=new Set(); r.v.forEach(v=>involved(v,r.sz).forEach(p=>culprits.add(p)));
+  let right;
+  if(tapped===null) right = r.v.length===0;
+  else right = culprits.has(tapped);
+  if(right) err.pts++;
+  culprits.forEach(p=>errToks[p].classList.add("hit"));
+  if(tapped && !culprits.has(tapped)) errToks[tapped].classList.add("ok");
+  let body;
+  if(r.v.length===0) body="<p>Lo schieramento era regolare: ogni giocatore rispetta chi ha davanti, dietro e di fianco.</p>";
+  else body=r.v.map(v=>`<p>${explain(v,r.sz)}</p>`).join("") + "<p>Vale anche toccare l'altro giocatore della coppia: il fallo riguarda tutti e due.</p>";
+  fb.className="card feedback "+(right?"good":"bad");
+  fb.innerHTML=`<p class="verdict">${right?"Giusto":"Sbagliato"}</p>${body}`;
+  document.getElementById("errPts").textContent=`${err.pts} punti`;
+  document.getElementById("btnRegular").disabled=true;
+  const nx=document.getElementById("btnNext");
+  nx.disabled=false;
+  if(err.round===9){ nx.textContent="Vedi il risultato"; }
+}
+for(const id of ALL){ errToks[id].style.cursor="pointer"; errToks[id].addEventListener("click",()=>answerErr(id)); }
+document.getElementById("btnRegular").addEventListener("click",()=>answerErr(null));
+document.getElementById("btnNext").addEventListener("click",()=>{
+  const nx=document.getElementById("btnNext");
+  if(err.round===9 && err.done && !err.final){
+    err.final=true;
+    const fb=document.getElementById("errFb"); fb.className="card feedback good";
+    fb.innerHTML=`<p class="verdict">${err.pts} su 10</p><p>${err.pts>=9?"Occhio da arbitro.":err.pts>=6?"Buona base: ripassa le coppie avanti e dietro.":"Riguarda la sezione Guarda e riprova."}</p><div class="row"><button id="errCopy">Copia il risultato</button></div><p id="errCopied" class="lead"></p>`;
+    document.getElementById("errCopy").addEventListener("click",()=>copy(`Rotazioni in campo · Trova l'errore: ${err.pts}/10`,"errCopied"));
+    fb.appendChild(saveBox("errore", err.pts));
+    nx.textContent="Gioca di nuovo"; return;
+  }
+  if(err.final){ err.round=0; err.pts=0; err.final=false; nx.textContent="Avanti"; newErr(); return; }
+  err.round++; newErr();
+});
+
+const putSvg=document.getElementById("putSvg");
+const putToks=drawCourt(putSvg,{bench:true});
+const putChips=document.getElementById("putChips");
+SEQ.forEach((n,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=n; b.addEventListener("click",()=>{ state.putIdx=i; resetPut(); }); putChips.appendChild(b); });
+function resetPut(){
+  const idx=state.putIdx, c=liberoFor(zonesOf(idx));
+  [...putChips.children].forEach((b,i)=>b.setAttribute("aria-pressed", i===idx));
+  document.getElementById("putRot").textContent=`${SEQ[idx]} · zone di questa rotazione`;
+  zoneCard(document.getElementById("putZones"), idx);
+  const order=shuffle(ALL.filter(id=>id!==c));
+  show(putToks[c],false); putToks[c].classList.remove("hit","ok");
+  order.forEach((id,i)=>{ const g=putToks[id]; g.classList.remove("hit","ok"); place(g, 100+i*140, 1035); show(g,true); });
+  const fb=document.getElementById("putFb"); fb.className="card feedback"; fb.innerHTML="<p>Quando hai sistemato tutti, premi Controlla.</p>";
+}
+let drag=null;
+function svgPoint(svg, e){ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+for(const id of ALL){
+  const g=putToks[id]; g.style.cursor="grab";
+  g.addEventListener("pointerdown",e=>{
+    e.preventDefault(); g.setPointerCapture(e.pointerId);
+    const p=svgPoint(putSvg,e); drag={g,dx:g._x-p.x,dy:g._y-p.y}; g.classList.add("dragging");
+    g.parentNode.appendChild(g); g.classList.remove("hit","ok");
+  });
+  g.addEventListener("pointermove",e=>{ if(!drag||drag.g!==g) return; const p=svgPoint(putSvg,e);
+    const x=Math.max(-20,Math.min(920,p.x+drag.dx)), y=Math.max(-20,Math.min(1080,p.y+drag.dy)); place(g,x,y); });
+  const end=()=>{ if(drag&&drag.g===g){ g.classList.remove("dragging"); drag=null; } };
+  g.addEventListener("pointerup",end); g.addEventListener("pointercancel",end);
+}
+document.getElementById("btnReset").addEventListener("click",resetPut);
+document.getElementById("btnRandom").addEventListener("click",()=>{ let n; do{ n=Math.floor(Math.random()*6); }while(n===state.putIdx); state.putIdx=n; resetPut(); });
+document.getElementById("btnShow").addEventListener("click",()=>{
+  const name=SEQ[state.putIdx];
+  for(const id in RECV[name]){ const [x,y]=toCm(RECV[name][id]); putToks[id].classList.remove("hit","ok"); place(putToks[id],x,y); }
+  const fb=document.getElementById("putFb"); fb.className="card feedback good";
+  fb.innerHTML=`<p class="verdict">Soluzione standard</p><p>${INFO[name].start} Ricevono ${INFO[name].recv}.</p>`;
+});
+const ch={on:false,order:[],i:0,pts:0,checked:false};
+function chUI(){
+  const on=ch.on;
+  document.getElementById("chScore").hidden=!on;
+  ["btnShow","btnRandom"].forEach(id=>document.getElementById(id).disabled=on);
+  [...putChips.children].forEach(b=>b.disabled=on);
+  document.getElementById("btnChallenge").textContent= on ? "Esci dalla sfida" : "Sfida: tutte e 6 le rotazioni";
+  if(on){ document.getElementById("chRound").textContent=`Rotazione ${ch.i+1} di 6`; document.getElementById("chPts").textContent=`${ch.pts} punti`; }
+}
+function chStart(){ ch.on=true; ch.order=shuffle([0,1,2,3,4,5]); ch.i=0; ch.pts=0; ch.checked=false; state.putIdx=ch.order[0]; resetPut(); chUI(); }
+function chStop(){ ch.on=false; chUI(); resetPut(); }
+document.getElementById("btnChallenge").addEventListener("click",()=>{ ch.on ? chStop() : chStart(); });
+function chAfterCheck(ok){
+  if(!ch.on || ch.checked) return;
+  ch.checked=true; if(ok) ch.pts++;
+  chUI();
+  const fb=document.getElementById("putFb");
+  const p=document.createElement("p"); p.className="lead";
+  p.textContent= ok ? "Punto! " : "Niente punto per questa rotazione: puoi correggere e ricontrollare per imparare, ma il punto non conta più.";
+  fb.appendChild(p);
+  const row=document.createElement("div"); row.className="row";
+  const b=document.createElement("button"); b.className="primary";
+  if(ch.i<5){ b.textContent="Prossima rotazione"; b.addEventListener("click",()=>{ ch.i++; ch.checked=false; state.putIdx=ch.order[ch.i]; resetPut(); chUI(); }); }
+  else { b.textContent="Vedi il risultato"; b.addEventListener("click",()=>{
+      const tot=ch.pts; ch.on=false; chUI();
+      fb.className="card feedback good";
+      fb.innerHTML=`<p class="verdict">${tot} su 6</p><p>${tot===6?"Sei pronto per la partita.":tot>=4?"Buono: ripassa le rotazioni sbagliate nella sezione Guarda.":"Riguarda la sezione Guarda e riprova la sfida."}</p>`;
+      fb.appendChild(saveBox("mettili", tot));
+    }); }
+  row.appendChild(b); fb.appendChild(row);
+}
+document.getElementById("btnCheck").addEventListener("click",()=>{
+  const idx=state.putIdx, sz=shownZones(idx), fb=document.getElementById("putFb");
+  const pos={}; const out=[];
+  for(const z in sz){ const id=sz[z], g=putToks[id]; pos[id]=[g._x,g._y]; putToks[id].classList.remove("hit","ok");
+    if(g._x<0||g._x>900||g._y<0||g._y>900) out.push(id); }
+  if(out.length){ out.forEach(id=>putToks[id].classList.add("hit")); fb.className="card feedback bad";
+    fb.innerHTML=`<p class="verdict">Manca qualcuno</p><p>${out.map(id=>cap(NAMES[id])).join(", ")} ${out.length>1?"non sono":"non è"} ancora dentro al campo.</p>`; return; }
+  const v=violations(pos,sz);
+  if(!v.length){
+    Object.values(sz).forEach(id=>putToks[id].classList.add("ok"));
+    fb.className="card feedback good";
+    fb.innerHTML=`<p class="verdict">Regolare</p><p>Ognuno rispetta chi ha davanti, dietro e di fianco. Nella pratica, in ${SEQ[idx]} ricevono ${INFO[SEQ[idx]].recv}.</p>`;
+    chAfterCheck(true); return;
+  }
+  v.forEach(x=>involved(x,sz).forEach(p=>putToks[p].classList.add("hit")));
+  fb.className="card feedback bad";
+  fb.innerHTML=`<p class="verdict">Fallo di posizione</p>${v.map(x=>`<p>${explain(x,sz)}</p>`).join("")}`;
+  chAfterCheck(false);
+});
+
+const QUIZ=[
+{q:"La tua squadra riceve e vince il punto. Cosa succede?",o:["Ruotate di un posto in senso orario e battete voi","Ruotate in senso antiorario","Non ruotate: batte chi aveva battuto prima","Ruota solo la prima linea"],e:"Chi conquista il servizio dalla ricezione ruota di un posto in senso orario."},
+{q:"Dopo la rotazione, chi va a battere?",o:["Chi era in zona 2","Chi era in zona 6","Chi era in zona 1","Chi era in zona 4"],e:"Il giocatore di zona 2 scende in zona 1 e batte."},
+{q:"La squadra al servizio vince il punto. Cosa succede?",o:["Non ruota: batte di nuovo lo stesso giocatore","Ruota di un posto","Batte il giocatore di zona 2","Cambia il battitore ma non ruota"],e:"Si ruota solo quando si conquista il servizio partendo dalla ricezione."},
+{q:"Dopo una rotazione, il giocatore che era in zona 1 dove va?",o:["In zona 6","In zona 2","In zona 5","Resta in zona 1"],e:"Si ruota in senso orario: 2 va in 1, 1 va in 6, 6 va in 5."},
+{q:"Dopo una rotazione, il giocatore che era in zona 5 dove va?",o:["Sale in zona 4","Va in zona 6","Va in zona 1","Resta in seconda linea"],e:"Da 5 si sale in 4: è uno dei due passaggi tra le linee, insieme a quello da 2 a 1."},
+{q:"Dopo quante rotazioni ogni giocatore torna al posto di partenza?",o:["6","3","12","4"],e:"Le zone sono sei: dopo sei rotazioni il giro è completo."},
+{q:"In quale istante la squadra in ricezione deve essere in posizione regolare?",o:["Al colpo di battuta avversario","Al fischio dell'arbitro","Quando il battitore lancia la palla","Quando la palla passa la rete"],e:"Conta il momento in cui il battitore colpisce la palla. Subito dopo ci si può muovere ovunque."},
+{q:"Quali sono le coppie avanti e dietro che si controllano?",o:["4 e 5, 3 e 6, 2 e 1","4 e 1, 3 e 6, 2 e 5","4 e 6, 3 e 5, 2 e 1","Solo 3 e 6"],e:"Ogni difensore non deve essere più vicino alla rete del suo avanti: 5 con 4, 6 con 3, 1 con 2."},
+{q:"Il giocatore di zona 6 è alla stessa distanza dalla rete di quello di zona 3. È fallo?",o:["No, alla stessa altezza è regolare","Sì, deve stare almeno un metro dietro","Sì, è sempre fallo","Dipende dall'arbitro"],e:"È fallo solo se il difensore è più vicino alla rete del suo avanti."},
+{q:"Il giocatore di zona 1 sta più avanti del giocatore di zona 3. È fallo?",o:["No, 1 e 3 non sono corrispondenti","Sì, è sempre fallo","Sì, se la battuta è in salto","No, ma solo per il libero"],e:"Si controllano solo le coppie corrispondenti. È questa libertà che permette di nascondere l'alzatore."},
+{q:"Guardando la rete, dove deve stare il giocatore di zona 4 rispetto a quello di zona 3?",o:["Non più a destra di lui","Più avanti di lui","Più indietro di lui","Non c'è nessun vincolo"],e:"Nella stessa linea il laterale non deve superare il centrale verso l'interno."},
+{q:"Guardando la rete, dove deve stare il giocatore di zona 6 rispetto a quello di zona 1?",o:["Non più a destra di lui","Più a destra di lui","Più avanti di lui","Non c'è nessun vincolo"],e:"Il 6 è il centrale della seconda linea: deve restare tra il 5 a sinistra e l'1 a destra."},
+{q:"Come si giudica se un giocatore è in posizione?",o:["Dalla posizione dei piedi a terra","Dalla posizione delle mani","Dalla posizione della testa","Dal numero di maglia"],e:"La regola guarda il contatto dei piedi con il terreno."},
+{q:"Con le regole 2025-2028, la squadra al servizio deve rispettare l'ordine di rotazione in campo?",o:["No, può schierarsi come vuole","Sì, come la squadra in ricezione","Solo la prima linea","Solo nel tie break"],e:"Il vincolo di posizione vale solo per chi riceve. L'ordine di battuta invece va sempre rispettato."},
+{q:"Dopo il colpo di battuta, dove possono andare i giocatori in ricezione?",o:["Ovunque nel proprio campo e nella zona libera","Devono restare nella propria zona","Solo nella propria linea","Solo dopo il primo tocco"],e:"Le posizioni contano solo nell'istante della battuta."},
+{q:"Cos'è il fallo di posizione?",o:["Un giocatore in ricezione è fuori posto al colpo di battuta","Va a battere il giocatore sbagliato","Un difensore attacca davanti ai 3 metri","Il libero entra senza autorizzazione"],e:"Riguarda la posizione rispetto ai compagni corrispondenti, nell'istante della battuta."},
+{q:"Cos'è il fallo di rotazione?",o:["Va a battere il giocatore sbagliato","Un giocatore è fuori posto in ricezione","La squadra ruota in senso antiorario durante l'azione","Il libero va in prima linea"],e:"È l'errore nell'ordine di servizio."},
+{q:"Qual è la conseguenza di un fallo di posizione?",o:["Punto e servizio agli avversari","Si ripete l'azione","Cartellino giallo","Nessuna, solo un richiamo"],e:"Si perde l'azione e si correggono le posizioni."},
+{q:"Un giocatore di seconda linea va a giocare a rete dopo la battuta. Cosa diventa?",o:["Resta un difensore per tutta l'azione","Diventa un avanti","Diventa avanti solo se tocca la palla","Diventa avanti se supera i 3 metri"],e:"La linea di appartenenza si decide al colpo di battuta e vale fino al punto."},
+{q:"Rotazione P1 significa:",o:["Il palleggiatore è in zona 1","È la prima rotazione del set","Il palleggiatore batte per primo","C'è un solo palleggiatore"],e:"Le rotazioni prendono il nome dalla zona in cui si trova il palleggiatore."},
+{q:"Cos'è la penetrazione dell'alzatore?",o:["La corsa dell'alzatore di seconda linea fino al punto di alzata","Un attacco dell'alzatore al secondo tocco","Lo scambio tra alzatore e libero","Il muro dell'alzatore sul centrale avversario"],e:"Serve ad avere tre attaccanti di prima linea invece di due."},
+{q:"In quali rotazioni del 5-1 l'alzatore fa la penetrazione?",o:["P1, P6, P5","P4, P3, P2","Solo in P1","In tutte"],e:"Penetra quando è in seconda linea: zone 1, 6 e 5."},
+{q:"Quale rotazione ha la penetrazione più lunga?",o:["P5","P1","P6","P2"],e:"In P5 l'alzatore parte da sinistra e attraversa la rete fino al punto di alzata."},
+{q:"In P6 l'alzatore si nasconde dietro:",o:["Il giocatore di zona 3","Il giocatore di zona 4","Il libero","Il giocatore di zona 1"],e:"In zona 6 il suo avanti corrispondente è il giocatore di zona 3."},
+{q:"Quando parte l'alzatore che penetra?",o:["Sul colpo di battuta, senza superare i suoi corrispondenti prima","Al fischio dell'arbitro","Quando la palla supera la rete","Dopo la ricezione"],e:"Può già muoversi, ma fino al colpo di battuta deve rispettare le posizioni."},
+{q:"Dove deve arrivare l'alzatore che penetra?",o:["Vicino a rete, tra zona 2 e zona 3","In zona 4","Al centro del campo","Sulla linea dei 3 metri"],e:"È il punto di alzata, dove arriva la ricezione."},
+{q:"L'alzatore di seconda linea è corso a rete. Può murare?",o:["No, resta un difensore per tutta l'azione","Sì, una volta arrivato a rete","Sì, ma solo in zona 2","Solo se lo chiama il capitano"],e:"Un difensore non può murare né partecipare a un muro."},
+{q:"L'alzatore di seconda linea è a rete e la palla è tutta sopra il nastro. Può mandarla di là di seconda?",o:["No, sarebbe attacco irregolare di un difensore","Sì, sempre","Sì, ma solo di palleggio","Solo in P1"],e:"Un difensore dentro i 3 metri non può attaccare una palla interamente sopra il bordo della rete."},
+{q:"Se il primo tocco lo fa l'alzatore, chi alza di solito?",o:["Un compagno stabilito prima, spesso opposto o libero","Nessuno: si rimanda di là","Il centrale, sempre","Lo stesso alzatore"],e:"Bisogna deciderlo prima, per non perdere tempo."},
+{q:"In P4 standard, lo schiacciatore di zona 2 dove riceve?",o:["Sul lato sinistro, così è già in banda per attaccare","Sul lato destro","Non riceve","Vicino a rete"],e:"Palleggiatore e centrale si stringono a sinistra, lo schiacciatore scende a sinistra e gli altri traslano a destra."},
+{q:"In P2 standard, l'opposto in zona 5 dove si mette in ricezione?",o:["In fondo a sinistra, poi passa dietro verso zona 1","Sulla linea dei 3 metri","In prima linea","Al centro a ricevere"],e:"Resta fuori dalla ricezione e poi attacca da seconda linea in zona 1."},
+{q:"Cosa significa il sistema 5-1?",o:["5 attaccanti e 1 alzatore","5 giocatori e 1 libero","5 set e 1 tie break","5 ricevitori e 1 attaccante"],e:"Un solo alzatore per tutte e sei le rotazioni."},
+{q:"Nel sistema 4-2, chi alza?",o:["L'alzatore che è in prima linea","L'alzatore di seconda linea","Sempre lo stesso","Il libero"],e:"I due alzatori sono in diagonale: alza quello che è a rete."},
+{q:"Nel sistema 6-2, chi alza?",o:["L'alzatore che è in seconda linea","L'alzatore di prima linea","Il centrale","Sempre lo stesso"],e:"Alza chi è dietro e penetra, così a rete restano sempre tre attaccanti."},
+{q:"Quale sistema non prevede la penetrazione?",o:["4-2","6-2","5-1","Tutti la prevedono"],e:"Nel 4-2 alza sempre l'alzatore di prima linea."},
+{q:"Nel 5-1, quanti attaccanti di prima linea ci sono quando l'alzatore è a rete?",o:["2","3","1","4"],e:"Per questo l'opposto attacca da seconda linea."},
+{q:"Qual è il sistema più usato dalle squadre di buon livello?",o:["5-1","4-2","6-6","3-3"],e:"È lo standard dalla prima divisione alla Serie A."},
+{q:"Chi fa di norma il secondo tocco?",o:["Il palleggiatore","Il libero","Il centrale","L'opposto"],e:"Il secondo tocco è l'alzata."},
+{q:"In formazione, dove sta l'opposto rispetto al palleggiatore?",o:["In diagonale, a tre posti di distanza","Accanto a lui","Sempre in prima linea","Sempre in zona 1"],e:"I ruoli che si alternano stanno in diagonale."},
+{q:"I due centrali, nella formazione, come sono disposti?",o:["In diagonale, a tre posti di distanza","Uno accanto all'altro","Tutti e due in prima linea","Tutti e due in seconda linea"],e:"Così in ogni rotazione c'è un centrale a rete e uno dietro."},
+{q:"Qual è l'ordine classico partendo dal palleggiatore?",o:["P, S1, C2, O, S2, C1","P, O, S1, S2, C1, C2","P, C1, C2, S1, S2, O","P, S1, S2, C1, C2, O"],e:"Ruoli uguali in diagonale: P con O, S1 con S2, C1 con C2."},
+{q:"Quale ruolo di solito non riceve ed è l'attaccante principale?",o:["L'opposto","Lo schiacciatore","Il libero","Il palleggiatore"],e:"L'opposto viene tenuto fuori dalla ricezione per attaccare."},
+{q:"Quale ruolo riceve e attacca, ed è il più completo?",o:["Lo schiacciatore (banda)","Il centrale","L'opposto","Il palleggiatore"],e:"Riceve la battuta e attacca soprattutto da zona 4 e con la pipe."},
+{q:"Il primo tempo è l'attacco tipico di:",o:["Centrale","Libero","Opposto","Palleggiatore"],e:"Palla bassa e veloce, attaccata vicino all'alzatore."},
+{q:"Chi riceve la battuta nel 5-1 standard?",o:["Il libero e i due schiacciatori","I due centrali e il libero","L'alzatore e l'opposto","Tutti e sei"],e:"Si riceve in tre. L'alzatore non riceve mai, l'opposto di solito no."},
+{q:"In fase break, dove difende di solito il palleggiatore di seconda linea?",o:["In zona 1","In zona 5","In zona 6","A rete"],e:"Da zona 1 la corsa verso il punto di alzata è la più corta."},
+{q:"Il libero può murare?",o:["No, mai","Sì, se è in zona 6","Solo sulle palle alte","Sì, ma non può attaccare"],e:"Il libero non può murare né tentare il muro."},
+{q:"Il libero può battere?",o:["No","Sì, sempre","Solo nel tie break","Solo se è il capitano"],e:"Tra i limiti del libero c'è anche la battuta."},
+{q:"Nel 5-1 standard, al posto di chi entra di solito il libero?",o:["Del centrale di seconda linea","Del palleggiatore","Dell'opposto","Dello schiacciatore di prima linea"],e:"Il libero sostituisce il centrale quando va in seconda linea."},
+{q:"Il centrale sostituito dal libero ruota fino in zona 4. Cosa succede?",o:["Il libero esce e rientra il centrale","Il libero va in zona 4","Entra un altro libero","Il centrale resta fuori"],e:"Il libero può giocare solo in seconda linea."},
+{q:"Il cambio del libero conta come sostituzione?",o:["No","Sì","Conta come mezza sostituzione","Solo dopo il terzo cambio"],e:"Gli scambi del libero sono a parte e non hanno un limite di numero."},
+{q:"Tra due ingressi del libero cosa deve passare?",o:["Almeno un'azione di gioco","Niente","Un set intero","Un tempo di riposo"],e:"Non può uscire e rientrare senza un'azione in mezzo."},
+{q:"Come si riconosce il libero in campo?",o:["Maglia di colore diverso dai compagni","Numero sempre 1","Fascia al braccio","Cappellino"],e:"Il colore dominante della sua divisa deve essere diverso da quello dei compagni."},
+{q:"Il libero può attaccare con la palla interamente sopra il bordo della rete?",o:["No, da nessun punto del campo","Sì, se stacca da dietro i 3 metri","Sì, sempre","Solo di pallonetto"],e:"È uno dei limiti del libero."},
+{q:"Il libero alza in palleggio con i piedi dentro i 3 metri. Il compagno può schiacciare la palla sopra il nastro?",o:["No, quell'attacco è fallo","Sì, sempre","Solo se è di prima linea","Solo l'opposto"],e:"La limitazione vale per l'alzata in palleggio dalla zona d'attacco."},
+{q:"Il libero alza in bagher da dentro i 3 metri. Il compagno può attaccare sopra il nastro?",o:["Sì, l'attacco è libero","No, mai","Solo se il libero era fermo","Solo da seconda linea"],e:"Il limite riguarda solo l'alzata in palleggio dentro la zona d'attacco."},
+{q:"Quanti liberi si possono iscrivere a referto al massimo?",o:["2","1","3","Nessun limite"],e:"Si possono iscrivere due liberi, ma in campo ce n'è uno alla volta."},
+{q:"Quanto misura il campo da pallavolo?",o:["18 x 9 metri","18 x 12 metri","16 x 8 metri","20 x 10 metri"],e:"Due metà quadrate di 9 x 9 metri."},
+{q:"Quanto è alta la rete maschile?",o:["2,43 m","2,24 m","2,35 m","2,50 m"],e:"Quella femminile è 2,24 m."},
+{q:"Quanto è alta la rete femminile?",o:["2,24 m","2,43 m","2,15 m","2,30 m"],e:"Quella maschile è 2,43 m."},
+{q:"A che distanza dalla rete è la linea d'attacco?",o:["3 metri","2 metri","4,5 metri","6 metri"],e:"Separa la zona d'attacco dalla zona di difesa."},
+{q:"Quanti giocatori ha in campo ogni squadra?",o:["6","7","5","6 più il libero"],e:"Il libero entra al posto di un compagno: in campo sono sempre sei."},
+{q:"Quanti punti servono per vincere un set normale?",o:["25, con almeno 2 di scarto","21","25 esatti","30"],e:"Sul 24 pari si continua finché una squadra va a +2."},
+{q:"Sul 24 pari cosa succede?",o:["Si continua finché una squadra ha 2 punti di vantaggio","Vince chi fa il 25","Si gioca un punto secco","Si passa al tie break"],e:"Serve sempre uno scarto di almeno due punti."},
+{q:"A quanti punti si gioca il quinto set?",o:["15, con 2 di scarto","25","21","15 esatti"],e:"È il tie break."},
+{q:"Quanti set bisogna vincere per vincere la partita?",o:["3","2","4","5"],e:"Si gioca al meglio dei cinque set."},
+{q:"Con il rally point system, chi fa punto?",o:["Chi vince l'azione, a prescindere da chi ha battuto","Solo la squadra al servizio","Solo la squadra in ricezione","Chi tocca la palla per ultimo"],e:"Ogni azione assegna un punto."},
+{q:"Quanti tempi di riposo ha ogni squadra per set?",o:["2","1","3","Illimitati"],e:"Ognuno dura 30 secondi."},
+{q:"Quanto dura un tempo di riposo?",o:["30 secondi","60 secondi","45 secondi","15 secondi"],e:"Ogni squadra ne ha due per set."},
+{q:"Quante sostituzioni ha ogni squadra per set, secondo la regola base?",o:["6","3","12","Illimitate"],e:"Alcuni campionati possono avere limiti diversi."},
+{q:"Un titolare sostituito può rientrare nello stesso set?",o:["Sì, una volta, solo al posto di chi lo aveva sostituito","No, mai","Sì, quante volte vuole","Solo nel set successivo"],e:"Ogni titolare può uscire e rientrare una sola volta per set."},
+{q:"Quanti tocchi ha una squadra per rimandare la palla?",o:["3","2","4","Illimitati"],e:"Il tocco di muro non si conta."},
+{q:"Quanti tocchi ha una squadra dopo un tocco di muro?",o:["Ancora 3","2","1","Nessuno, la palla va rimandata subito"],e:"Il tocco di muro non conta tra i tre tocchi di squadra."},
+{q:"Lo stesso giocatore può toccare la palla due volte di seguito?",o:["No, tranne dopo il proprio tocco di muro","Sì, sempre","Sì, in ricezione","Sì, se è il libero"],e:"È il doppio tocco. Il muro fa eccezione."},
+{q:"In ricezione la palla tocca braccio e spalla nella stessa azione. È fallo?",o:["No, al primo tocco di squadra è ammesso","Sì, è doppia","Sì, è palla trattenuta","Si ripete l'azione"],e:"Al primo tocco sono ammessi contatti consecutivi in un'unica azione."},
+{q:"Con quali parti del corpo si può colpire la palla?",o:["Con qualsiasi parte","Solo con braccia e mani","Solo sopra la vita","Con tutto tranne i piedi"],e:"Conta che la palla non sia trattenuta o lanciata."},
+{q:"Quando c'è palla trattenuta?",o:["Quando la palla viene fermata o lanciata","Quando tocca due mani insieme","Quando tocca la rete","Quando la tocca il libero"],e:"Il contatto deve essere breve."},
+{q:"La palla tocca la linea di fondo. È dentro o fuori?",o:["Dentro","Fuori","Si ripete","Dipende dalla velocità"],e:"Le linee fanno parte del campo."},
+{q:"La palla tocca l'asta. Cosa succede?",o:["È fuori","È buona","Si ripete l'azione","È buona se poi passa di là"],e:"Le aste segnano lo spazio di passaggio della palla."},
+{q:"Toccare la rete tra le aste durante l'azione è:",o:["Fallo","Regolare","Fallo solo con le mani","Fallo solo per chi mura"],e:"Il contatto con la rete tra le aste durante l'azione di gioco è fallo."},
+{q:"Il piede supera la linea centrale. Quando è fallo?",o:["Quando il piede la supera completamente","Appena la tocca","Mai","Solo se tocca un avversario"],e:"È regolare finché una parte del piede resta sulla linea o sopra di essa."},
+{q:"Una palla del primo tocco va oltre la rete fuori dalle aste. Si può recuperare?",o:["Sì, senza toccare il campo avversario e rimandandola dallo stesso lato","No, mai","Sì, sempre","Solo il libero"],e:"Va riportata indietro passando di nuovo fuori dalle aste, dallo stesso lato."},
+{q:"Una palla del terzo tocco passa fuori dalle aste verso il campo avversario. Cosa succede?",o:["È fuori quando supera il piano della rete","Si può recuperare","Si ripete l'azione","È buona se cade dentro"],e:"Solo la palla del primo tocco di squadra si può recuperare."},
+{q:"Entro quanti secondi dal fischio bisogna battere?",o:["8","5","10","15"],e:"Oltre gli 8 secondi è fallo di servizio."},
+{q:"Il battitore calpesta la linea di fondo prima del colpo. Cosa succede?",o:["Fallo di servizio","È regolare","Si ripete la battuta","Solo un richiamo"],e:"Al momento del colpo non si deve toccare il campo né la linea di fondo."},
+{q:"In battuta in salto, si può atterrare dentro il campo dopo il colpo?",o:["Sì","No","Solo il libero","Solo nel femminile"],e:"Conta dove si stacca, non dove si atterra."},
+{q:"Si può murare la battuta avversaria?",o:["No","Sì","Solo il centrale","Solo se è lenta"],e:"Murare il servizio è fallo."},
+{q:"Si può attaccare direttamente la battuta avversaria?",o:["No, se la palla è in zona d'attacco e interamente sopra la rete","Sì, sempre","No, mai in nessun caso","Solo il libero"],e:"È uno dei falli d'attacco."},
+{q:"Cos'è il velo?",o:["La squadra al servizio nasconde battitore e traiettoria","La rete che si abbassa","Un tipo di battuta","Una palla che sfiora la rete"],e:"Gli avversari devono poter vedere il colpo e la traiettoria."},
+{q:"Durante la battuta, i compagni del battitore possono alzare le mani sopra la testa?",o:["No, finché la palla non ha superato la rete","Sì","Solo il capitano","Solo in seconda linea"],e:"Con le regole 2025-2028 è vietato: rischia di essere giudicato velo."},
+{q:"Che caratteristica ha la battuta float?",o:["Va senza rotazione e la traiettoria cambia","Ha molta rotazione in avanti","È lanciata dal basso","Si batte solo da fermi a un metro dal campo"],e:"Colpo secco al centro della palla con mano rigida."},
+{q:"Che caratteristica ha la battuta in salto spin?",o:["Massima potenza, ma con più errori","È la più sicura","Va senza rotazione","Si usa solo nel minivolley"],e:"Cerca l'ace o una ricezione lontana da rete."},
+{q:"Dove conviene battere, tatticamente?",o:["Sul ricevitore più debole o tra due ricevitori","Sempre sul libero","Sempre al centro del campo","Sempre in zona 1"],e:"Si cerca di mettere in difficoltà la ricezione."},
+{q:"Cos'è un ace?",o:["Un punto diretto in battuta","Un muro vincente","Un attacco in primo tempo","Una ricezione perfetta"],e:"La palla non viene ricevuta o la ricezione non è giocabile."},
+{q:"In bagher, dove deve toccare la palla?",o:["Sugli avambracci, sopra i polsi","Sulle mani","Sui gomiti","Sui palmi"],e:"Le braccia unite formano il piano di rimbalzo."},
+{q:"In bagher, cosa si muove per primo?",o:["I piedi, per arrivare fermi sotto la palla","Le braccia","Le spalle","Le mani"],e:"Le braccia si uniscono solo all'ultimo momento."},
+{q:"Su una battuta molto forte, cosa devono fare le braccia in ricezione?",o:["Ammortizzare, senza spingere","Spingere forte in avanti","Alzarsi sopra la testa","Allargarsi"],e:"La palla ha già velocità: basta orientare il piano."},
+{q:"Qual è l'obiettivo della ricezione?",o:["Una palla alta a circa un metro dalla rete, tra zona 2 e 3","Rimandare subito la palla di là","Mandarla verso zona 4","Tenerla bassa e veloce"],e:"È lì che arriva l'alzatore."},
+{q:"In palleggio, con quale parte delle mani si tocca la palla?",o:["Con i polpastrelli","Con i palmi","Con il dorso","Con i pugni"],e:"Le dita formano una coppa sopra la fronte."},
+{q:"Dove si colpisce la palla in palleggio?",o:["Sopra la fronte","All'altezza del petto","Dietro la testa","All'altezza della vita"],e:"Ci si mette sotto la palla, con la fronte dietro di essa."},
+{q:"Da dove parte la spinta del palleggio?",o:["Dalle gambe","Solo dai polsi","Dalle spalle","Dalla schiena"],e:"Le gambe spingono, braccia e polsi completano verso il bersaglio."},
+{q:"Rincorsa d'attacco di un destro a tre passi: quale sequenza?",o:["Sinistro, destro, sinistro","Destro, sinistro, destro","Destro, destro, sinistro","Sinistro, sinistro, destro"],e:"Il secondo passo è lungo, il terzo chiude per frenare e saltare."},
+{q:"In schiacciata, dove si colpisce la palla?",o:["Nel punto più alto, davanti alla spalla","Dietro la testa","All'altezza del petto","Dopo che è scesa"],e:"Mano aperta, con chiusura del polso."},
+{q:"Cos'è il pallonetto?",o:["Un tocco morbido che scavalca il muro","Una battuta dal basso","Un attacco in primo tempo","Una difesa in tuffo"],e:"Si usa per mettere la palla nella zona scoperta dietro il muro."},
+{q:"Cos'è il mani e fuori?",o:["Un attacco che cerca le mani del muro per mandare la palla fuori","Un fallo del muro","Una ricezione con le mani","Un'alzata fuori dal campo"],e:"Si colpisce sulla mano esterna del muro."},
+{q:"Cos'è la pipe?",o:["Un attacco di seconda linea dal centro","Un primo tempo","Una battuta in salto","Un'alzata alta in zona 4"],e:"La attacca di solito lo schiacciatore che è in zona 6."},
+{q:"Cos'è la fast?",o:["Una palla tesa dietro l'alzatore, attaccata staccando su un piede","Una battuta veloce","Una ricezione in palleggio","Un muro a tre"],e:"È tipica del centrale, soprattutto nel femminile."},
+{q:"Cos'è la seconda intenzione?",o:["L'alzatore manda la palla di là al secondo tocco","Una seconda battuta","Il secondo tempo di un attacco","Un cambio del libero"],e:"Sorprende il muro che si aspetta l'alzata."},
+{q:"Muro su una palla alta: quando si salta?",o:["Dopo l'attaccante","Prima dell'attaccante","Quando tocca l'alzatore","Non si salta"],e:"Sui primi tempi invece si salta quasi insieme all'attaccante."},
+{q:"Chi mura all'esterno come orienta la mano esterna?",o:["Verso il campo, per evitare il mani e fuori","Verso l'esterno","Verso l'alto","Non conta"],e:"Così la palla che tocca il muro resta in campo."},
+{q:"Il giocatore a muro tocca la palla nello spazio avversario prima dell'attacco avversario. È fallo?",o:["Sì","No","Solo se è a muro da solo","Solo per il centrale"],e:"Non si può toccare la palla di là prima o insieme al colpo d'attacco avversario."},
+{q:"Chi può fare il muro?",o:["Solo i giocatori di prima linea","Tutti","Anche il libero","Solo i centrali"],e:"Difensori e libero non possono murare."},
+{q:"Dopo il proprio tocco di muro, lo stesso giocatore può ritoccare la palla?",o:["Sì","No","Solo se il muro era a due","Solo il centrale"],e:"Il tocco di muro non conta come tocco di squadra."},
+{q:"Un difensore stacca calpestando la linea dei 3 metri e schiaccia sopra la rete. È fallo?",o:["Sì","No","Solo se fa punto","Solo se è l'opposto"],e:"Il difensore deve staccare da dietro la linea, senza toccarla."},
+{q:"Un giocatore di prima linea può attaccare saltando da dietro i 3 metri?",o:["Sì, può attaccare da dove vuole","No","Solo se è il centrale","Solo in seconda linea"],e:"I limiti di posizione per l'attacco valgono solo per i difensori."},
+{q:"In difesa, com'è la posizione giusta al momento del colpo avversario?",o:["Bassi e fermi","In corsa verso la palla","In piedi e dritti","Con le braccia già unite"],e:"Chi si sta ancora muovendo difende male."},
+{q:"In difesa, qual è l'obiettivo principale?",o:["Tenere la palla alta e verso il centro del campo","Rimandarla subito di là","Mandarla precisa sull'alzatore a ogni costo","Mandarla fuori"],e:"Una palla alta è sempre rigiocabile."},
+{q:"Cosa si intende per fase break?",o:["La fase in cui la propria squadra batte","La pausa tra due set","Un tempo di riposo","Il tie break"],e:"È la fase in cui si cerca di fare punto con battuta, muro e contrattacco."},
+{q:"Cosa si intende per cambio palla?",o:["Punto della squadra in ricezione, che conquista il servizio","La sostituzione del pallone","Lo scambio tra libero e centrale","Il cambio di campo"],e:"È la fase ricezione e attacco."},
+{q:"Cos'è la copertura dell'attacco?",o:["I compagni si avvicinano all'attaccante per recuperare la palla murata","Un muro a tre","Una difesa in seconda linea","Coprire il libero"],e:"Lo schema base è con tre giocatori vicini e due più arretrati."},
+{q:"Nel muro a due sullo schiacciatore avversario, chi si sposta ad affiancare il laterale?",o:["Il centrale","Il libero","Il difensore di zona 6","Il palleggiatore di seconda linea"],e:"Il centrale si muove lungo la rete per chiudere il muro."}
+];
+const quiz={list:[],i:0,pts:0,answered:false};
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function startQuiz(){ quiz.list=shuffle(QUIZ.slice()).slice(0,8).map(q=>{ const idx=shuffle([0,1,2,3]); return {q:q.q,e:q.e,o:idx.map(k=>q.o[k]),a:idx.indexOf(q.a||0)}; }); quiz.i=0; quiz.pts=0; renderQ(); }
+function renderQ(){
+  const box=document.getElementById("qBox"), nx=document.getElementById("qNext");
+  document.getElementById("qPts").textContent=`${quiz.pts} punti`;
+  if(quiz.i>=quiz.list.length){
+    document.getElementById("qCount").textContent="Fine";
+    box.innerHTML=`<p class="verdict" style="font-family:var(--display);font-size:30px;font-weight:800;color:var(--ball)">${quiz.pts} su ${quiz.list.length}</p><p>${quiz.pts===quiz.list.length?"Perfetto.":quiz.pts>=6?"Bene: ripassa solo quelle sbagliate.":"Riguarda il manuale e la sezione Guarda, poi riprova."}</p><div class="row"><button id="qCopy">Copia il risultato</button></div><p id="qCopied" class="lead"></p>`;
+    document.getElementById("qCopy").addEventListener("click",()=>copy(`Rotazioni in campo · Quiz: ${quiz.pts}/${quiz.list.length}`,"qCopied"));
+    box.appendChild(saveBox("quiz", quiz.pts));
+    nx.textContent="Nuovo quiz"; nx.disabled=false; return;
+  }
+  const q=quiz.list[quiz.i]; quiz.answered=false;
+  document.getElementById("qCount").textContent=`Domanda ${quiz.i+1} di ${quiz.list.length}`;
+  box.innerHTML=`<p class="q">${q.q}</p><div class="opts">${q.o.map((t,k)=>`<button data-k="${k}">${t}</button>`).join("")}</div><p id="qExp" class="lead" aria-live="polite"></p>`;
+  box.querySelectorAll(".opts button").forEach(b=>b.addEventListener("click",()=>{
+    if(quiz.answered) return; quiz.answered=true; const k=+b.dataset.k;
+    if(k===q.a) quiz.pts++;
+    box.querySelectorAll(".opts button").forEach(x=>{ const kk=+x.dataset.k; if(kk===q.a) x.classList.add("right"); else if(kk===k) x.classList.add("wrong"); x.disabled=true; x.style.opacity="1"; });
+    document.getElementById("qExp").textContent=(k===q.a?"Giusto. ":"Sbagliato. ")+q.e;
+    document.getElementById("qPts").textContent=`${quiz.pts} punti`;
+    nx.disabled=false;
+  }));
+  nx.textContent= quiz.i===quiz.list.length-1 ? "Vedi il risultato" : "Avanti"; nx.disabled=true;
+}
+document.getElementById("qNext").addEventListener("click",()=>{ if(quiz.i>=quiz.list.length){ startQuiz(); return; } quiz.i++; renderQ(); });
+
+function copy(text, outId){
+  const out=document.getElementById(outId);
+  try{
+    navigator.clipboard.writeText(text).then(()=>{ out.textContent="Copiato: incollalo nel gruppo."; },()=>{ out.textContent="Copia questo testo: "+text; });
+  }catch(e){ out.textContent="Copia questo testo: "+text; }
+}
+
+const FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSeoBKGKZ9ho7xn4QdgMTyGoWLD7bphUE9ISE8ZzMyUqsAV8xQ/formResponse";
+const F_NOME="entry.870443580", F_GIOCO="entry.816963454", F_PUNTI="entry.916483719";
+const SHEET_URL="https://docs.google.com/spreadsheets/d/1Pnt6-Z_t76KyywXV4TSuCRX8pqZkldjfLWj0Q6hdLUY/gviz/tq?tqx=out:json&headers=1&tq="+encodeURIComponent("select A,B,C,D");
+const MAXP={quiz:8,errore:10,mettili:6};
+function getName(){ try{ return localStorage.getItem("lv-nome")||""; }catch(e){ return ""; } }
+function setName(n){ try{ localStorage.setItem("lv-nome",n); }catch(e){} }
+function cleanName(n){ return n.replace(/\s+/g," ").trim().slice(0,20); }
+function saveBox(gioco, punti){
+  const id="save-"+gioco, wrap=document.createElement("div");
+  wrap.innerHTML=`<div class="save"><label for="${id}-in" class="lead" style="flex-basis:100%">Il tuo nome per la classifica</label><input id="${id}-in" maxlength="20" autocomplete="nickname" placeholder="Nome o soprannome"><button id="${id}-btn" class="primary">Salva in classifica</button></div><p id="${id}-msg" class="lead" aria-live="polite"></p>`;
+  const inp=wrap.querySelector("input"), btn=wrap.querySelector("button"), msg=wrap.querySelector("#"+id+"-msg");
+  inp.value=getName();
+  btn.addEventListener("click", async ()=>{
+    const n=cleanName(inp.value);
+    if(n.length<2){ msg.textContent="Scrivi un nome di almeno 2 lettere."; inp.focus(); return; }
+    btn.disabled=true; msg.textContent="Salvataggio...";
+    setName(n);
+    try{
+      const body=new URLSearchParams({[F_NOME]:n,[F_GIOCO]:gioco,[F_PUNTI]:String(punti)});
+      await fetch(FORM_URL,{method:"POST",mode:"no-cors",body});
+      msg.textContent=`Salvato: ${n}, ${punti} su ${MAXP[gioco]}. Lo trovi nella sezione Classifica.`;
+    }catch(e){ btn.disabled=false; msg.textContent="Non sono riuscito a salvare: controlla la connessione e riprova."; }
+  });
+  return wrap;
+}
+function renderBoard(box, rows){
+  box.textContent="";
+  if(!rows.length){ const p=document.createElement("p"); p.className="lead"; p.textContent="Ancora nessun punteggio: inizia tu."; box.appendChild(p); return; }
+  const t=document.createElement("table"); t.className="board";
+  t.innerHTML="<thead><tr><th>#</th><th>Nome</th><th>Partite</th><th style=\"text-align:right\">Record</th></tr></thead>";
+  const tb=document.createElement("tbody");
+  rows.slice(0,15).forEach((r,i)=>{ const tr=document.createElement("tr");
+    [String(i+1), r.nome, String(r.partite)].forEach(v=>{ const td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
+    const td=document.createElement("td"); td.className="n"; td.textContent=r.best; tr.appendChild(td); tb.appendChild(tr); });
+  t.appendChild(tb); box.appendChild(t);
+}
+async function loadBoard(){
+  const bq=document.getElementById("clsQuiz"), be=document.getElementById("clsErr"), bp=document.getElementById("clsPut");
+  try{
+    const txt=await (await fetch(SHEET_URL+"&t="+Date.now())).text();
+    const data=JSON.parse(txt.slice(txt.indexOf("(")+1, txt.lastIndexOf(")")));
+    const agg={quiz:{},errore:{},mettili:{}};
+    (data.table.rows||[]).forEach(r=>{
+      const c=r.c||[]; const nome=c[1]&&c[1].v, gioco=c[2]&&c[2].v, p=c[3]&&c[3].v;
+      if(!nome||!(gioco in agg)||typeof p!=="number") return;
+      if(p<0||p>MAXP[gioco]||Math.round(p)!==p) return;
+      const n=cleanName(String(nome)); if(n.length<2) return;
+      const k=n.toLowerCase(), a=agg[gioco][k]||(agg[gioco][k]={nome:n,best:0,partite:0});
+      a.partite++; if(p>a.best) a.best=p;
+    });
+    const sort=o=>Object.values(o).sort((x,y)=>y.best-x.best||y.partite-x.partite||x.nome.localeCompare(y.nome));
+    renderBoard(bq,sort(agg.quiz)); renderBoard(be,sort(agg.errore)); renderBoard(bp,sort(agg.mettili));
+  }catch(e){
+    [bq,be,bp].forEach(b=>{ b.innerHTML='<p class="lead">Classifica non raggiungibile da qui. Aprila dal sito Lavagna Volley: neoramses14031984.github.io/lavagna-volley</p>'; });
+  }
+}
+document.getElementById("clsRefresh").addEventListener("click",loadBoard);
+window.addEventListener("hashchange",()=>{ if(location.hash==="#classifica") loadBoard(); });
+
+window.addEventListener("hashchange",route);
+route(); renderSim(); newErr(); resetPut(); startQuiz(); if(state.view==="classifica") loadBoard();
+})();
+</script>
+</body>
+</html>

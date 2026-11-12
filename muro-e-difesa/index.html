@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muro e difesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0f1d33;
+  --panel:#172a4b;
+  --line:#2a4069;
+  --text:#eef2f8;
+  --muted:#a3b3cf;
+  --court:#e2843f;
+  --freezone:#2563a8;
+  --ball:#ffd23f;
+  --libero:#2ec4b6;
+  --good:#4cc38a;
+  --bad:#ff6b6b;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--night);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-direction:column;gap:2px}
+a.home{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.5px;color:var(--night);background:var(--ball);text-decoration:none;border-radius:10px;padding:8px 14px 7px 12px;margin-bottom:10px;line-height:1}
+a.home:hover{filter:brightness(1.06)}
+a.home:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:.5px;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--ball)}
+.sub{color:var(--muted);font-size:15px;margin:0}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;position:sticky;top:0;z-index:5;background:var(--night);padding:8px 0}
+nav a{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;text-align:center;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 4px;line-height:1.05}
+nav a[aria-current="page"]{color:var(--night);background:var(--ball);border-color:var(--ball)}
+nav a:focus-visible,button:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+section[hidden]{display:none}
+section{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;text-transform:uppercase;margin:0;line-height:1.05}
+.lead{margin:0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button{font-family:var(--body);font-size:15px;font-weight:700;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
+button.chip{padding:7px 12px;font-family:var(--display);font-size:17px;letter-spacing:.5px}
+button.chip[aria-pressed="true"]{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button.primary{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1 1 auto}
+.stage{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stage button{padding:9px 6px;font-size:14px;line-height:1.15}
+.stage button[aria-pressed="true"]{background:var(--libero);color:var(--night);border-color:var(--libero)}
+.courtbox{background:var(--freezone);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+svg.court{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+svg.drag{touch-action:none}
+.tok{transition:transform .75s cubic-bezier(.45,.05,.25,1),opacity .5s}
+.tok.dragging{transition:none}
+.tok circle{stroke-width:6}
+.tok text{font-family:var(--display);font-weight:800;font-size:46px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.tok.hit circle{stroke:var(--bad);stroke-width:14}
+.tok.ok circle{stroke:var(--good);stroke-width:14}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card p{margin:0}
+.card .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ball);font-size:15px}
+.lines{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:15px}
+.lines b{font-family:var(--display);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:14px;text-align:center}
+.zonegrid div{background:var(--night);border-radius:8px;padding:5px 2px}
+.zonegrid small{display:block;color:var(--muted);font-size:12px}
+.zonegrid strong{font-family:var(--display);font-size:20px}
+.score{display:flex;justify-content:space-between;font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase}
+.score span:last-child{color:var(--ball)}
+.feedback{border-left:5px solid var(--line)}
+.feedback.good{border-left-color:var(--good)}
+.feedback.bad{border-left-color:var(--bad)}
+.feedback .verdict{font-family:var(--display);font-size:22px;font-weight:800;text-transform:uppercase}
+.feedback.good .verdict{color:var(--good)}
+.feedback.bad .verdict{color:var(--bad)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;font-weight:400;padding:12px 14px}
+.opts button.right{border-color:var(--good);background:rgba(76,195,138,.18)}
+.opts button.wrong{border-color:var(--bad);background:rgba(255,107,107,.16)}
+.q{font-size:18px;font-weight:700;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.save{display:flex;gap:8px;flex-wrap:wrap}
+.save input{flex:1 1 160px;font:inherit;font-size:16px;color:var(--text);background:var(--night);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.save input:focus-visible{outline:3px solid var(--libero);outline-offset:1px}
+.board{width:100%;border-collapse:collapse;font-size:15px}
+.board th{font-family:var(--display);text-transform:uppercase;letter-spacing:.3px;color:var(--muted);text-align:left;font-weight:700;padding:4px 6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.board td.n{text-align:right;font-family:var(--display);font-size:20px;font-weight:800;color:var(--ball)}
+.board tr:first-child td{font-weight:700}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-top:6px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.tok{transition:none}}
+</style>
+
+<style id="visual-restyling-only">
+:root{
+  --night:#071a34;
+  --panel:rgba(17,43,78,.88);
+  --line:rgba(129,171,230,.28);
+  --text:#f4f7fc;
+  --muted:#b8c8df;
+  --ball:#ffd23f;
+}
+html{
+  min-height:100%;
+  background:#071a34;
+}
+body{
+  min-height:100vh;
+  background-color:#071a34;
+  background-image:
+    linear-gradient(90deg,rgba(4,18,38,.82) 0%,rgba(7,26,52,.60) 24%,rgba(7,26,52,.72) 50%,rgba(5,20,43,.68) 76%,rgba(3,15,33,.78) 100%),
+    linear-gradient(180deg,rgba(6,22,45,.18),rgba(6,22,45,.54)),
+    url("../volley-bg.jpg");
+  background-size:cover;
+  background-position:center top;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+.wrap{
+  position:relative;
+  max-width:620px;
+  min-height:100vh;
+  padding:28px 22px 44px;
+  background:linear-gradient(180deg,rgba(5,23,47,.72),rgba(8,29,57,.82));
+  border-left:1px solid rgba(255,255,255,.08);
+  border-right:1px solid rgba(255,255,255,.08);
+  box-shadow:0 0 55px rgba(0,0,0,.38);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+header{
+  padding:18px 18px 16px;
+  border:1px solid rgba(129,171,230,.22);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(22,53,94,.88),rgba(11,34,65,.72));
+  box-shadow:0 14px 35px rgba(0,0,0,.22);
+}
+a.home{
+  border-radius:999px;
+  box-shadow:0 7px 20px rgba(255,210,63,.18);
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+a.home:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(255,210,63,.25)}
+h1{font-size:clamp(38px,8vw,50px);text-shadow:0 3px 18px rgba(0,0,0,.28)}
+.sub{font-size:16px;color:#c5d3e8}
+nav{
+  top:8px;
+  padding:8px;
+  border:1px solid rgba(129,171,230,.22);
+  border-radius:16px;
+  background:rgba(7,25,51,.86);
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+nav a{
+  border-radius:11px;
+  background:rgba(29,63,108,.70);
+  transition:transform .16s ease,background .16s ease,border-color .16s ease;
+}
+nav a:hover{transform:translateY(-1px);background:rgba(39,81,137,.88);color:#fff}
+nav a[aria-current="page"]{
+  box-shadow:0 6px 18px rgba(255,210,63,.18);
+}
+section:not([hidden]){
+  padding:18px;
+  border:1px solid rgba(129,171,230,.20);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(11,34,65,.82),rgba(8,28,55,.90));
+  box-shadow:0 16px 40px rgba(0,0,0,.25);
+}
+h2{font-size:30px;color:#fff}
+button{
+  background:linear-gradient(180deg,rgba(33,70,118,.95),rgba(22,51,91,.95));
+  box-shadow:0 6px 15px rgba(0,0,0,.14);
+  transition:transform .16s ease,filter .16s ease,border-color .16s ease;
+}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);border-color:rgba(255,255,255,.30)}
+button:active:not(:disabled){transform:translateY(0)}
+button.primary,button.chip[aria-pressed="true"]{
+  background:linear-gradient(180deg,#ffe06a,#ffc928);
+  box-shadow:0 7px 18px rgba(255,210,63,.20);
+}
+.stage button[aria-pressed="true"]{
+  background:linear-gradient(180deg,#45d8c8,#28afaa);
+  box-shadow:0 7px 18px rgba(46,196,182,.18);
+}
+.card{
+  background:linear-gradient(135deg,rgba(28,61,104,.88),rgba(18,44,79,.82));
+  border-color:rgba(134,177,235,.26);
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,.16);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.courtbox{
+  padding:8px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(41,108,173,.94),rgba(22,72,131,.96));
+  box-shadow:0 18px 38px rgba(0,0,0,.33),inset 0 1px 0 rgba(255,255,255,.14);
+  overflow:hidden;
+}
+.save input{
+  background:rgba(4,20,42,.70);
+  border-color:rgba(132,174,232,.28);
+}
+footer{
+  padding:14px 8px 0;
+  border-top-color:rgba(129,171,230,.22);
+  color:#b9c8de;
+}
+@media (max-width:700px){
+  body{
+    background-position:36% top;
+    background-attachment:scroll;
+  }
+  .wrap{
+    max-width:none;
+    padding:12px 10px 30px;
+    border:0;
+    background:linear-gradient(180deg,rgba(5,22,45,.86),rgba(7,27,53,.93));
+    backdrop-filter:blur(5px);
+    -webkit-backdrop-filter:blur(5px);
+  }
+  header,section:not([hidden]){padding:14px;border-radius:15px}
+  nav{top:4px;gap:4px;padding:6px}
+  nav a{font-size:13px;padding:9px 2px}
+  h1{font-size:39px}
+  h2{font-size:27px}
+}
+@media (max-width:420px){
+  nav{grid-template-columns:repeat(5,minmax(0,1fr))}
+  nav a{font-size:12px;letter-spacing:0}
+  .lines{grid-template-columns:1fr;gap:1px}
+  .lines span{margin-bottom:7px}
+}
+@media (prefers-reduced-motion:reduce){
+  a.home,nav a,button{transition:none}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="https://neoramses14031984.github.io/lavagna-volley/" aria-label="Torna alla home di Lavagna Volley"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>Home</a>
+    <h1>Muro <span>e difesa</span></h1>
+    <p class="sub">Dove va ognuno quando attaccano gli avversari. Difesa con il 6 arretrato.</p>
+  </header>
+
+  <nav aria-label="Sezioni">
+    <a href="#guarda" data-view="guarda">Guarda</a>
+    <a href="#errore" data-view="errore">Trova l'errore</a>
+    <a href="#mettili" data-view="mettili">Mettili tu</a>
+    <a href="#quiz" data-view="quiz">Quiz</a>
+    <a href="#classifica" data-view="classifica">Classi&shy;fica</a>
+  </nav>
+
+  <section id="v-guarda" aria-labelledby="t-g">
+    <h2 id="t-g">Guarda il muro e la difesa</h2>
+    <p class="lead">Scegli da dove attaccano gli avversari, poi passa dall'attesa alla difesa. La nostra rete è in alto, l'attaccante avversario è il cerchio rosso oltre la rete.</p>
+    <div class="chips" id="attChips" role="group" aria-label="Da dove attaccano"></div>
+    <div class="chips" id="setChips" role="group" aria-label="Il nostro palleggiatore"></div>
+    <div class="stage" role="group" aria-label="Fase" style="grid-template-columns:repeat(2,1fr)">
+      <button data-stage="0">1 · Attesa a rete</button>
+      <button data-stage="1">2 · Muro e difesa</button>
+    </div>
+    <div class="courtbox"><svg class="court" id="gSvg" viewBox="-70 -150 1040 1100" role="img" aria-label="Campo con muro e difesa"></svg></div>
+    <div class="row"><button id="btnPlay" class="primary">Riproduci</button></div>
+    <div class="card" id="gInfo" aria-live="polite"></div>
+    <div class="legend">
+      <span><i style="background:var(--ball)"></i>P palleggiatore</span>
+      <span><i style="background:#fff"></i>S schiacciatori, C centrale, O opposto</span>
+      <span><i style="background:var(--libero)"></i>L libero</span>
+      <span><i style="background:var(--bad)"></i>attaccante avversario</span>
+    </div>
+  </section>
+
+  <section id="v-errore" aria-labelledby="t-e" hidden>
+    <h2 id="t-e">Trova l'errore</h2>
+    <p class="lead">Gli avversari stanno attaccando. Se qualcuno è nel posto sbagliato, toccalo. Se è tutto giusto, premi il pulsante sotto il campo.</p>
+    <div class="score"><span id="errRound">Turno 1 di 10</span><span id="errPts">0 punti</span></div>
+    <div class="card"><p class="k" id="errSit">Situazione</p></div>
+    <div class="courtbox"><svg class="court" id="eSvg" viewBox="-70 -150 1040 1100" role="img" aria-label="Difesa da controllare"></svg></div>
+    <div class="row">
+      <button id="btnRegular">È tutto giusto</button>
+      <button id="btnNext" class="primary" disabled>Avanti</button>
+    </div>
+    <div class="card feedback" id="errFb" aria-live="polite"><p>Tocca il giocatore nel posto sbagliato, oppure dichiara che è tutto giusto.</p></div>
+  </section>
+
+  <section id="v-mettili" aria-labelledby="t-m" hidden>
+    <h2 id="t-m">Mettili tu</h2>
+    <p class="lead">Gli avversari attaccano dal punto indicato. Trascina i sei giocatori dalla panchina al campo, nelle posizioni di muro e difesa. Nella sfida fai punto se è tutto giusto al primo Controlla.</p>
+    <div class="row"><button id="btnChallenge" class="primary">Sfida: tutte e 6 le situazioni</button></div>
+    <div class="score" id="chScore" hidden><span id="chRound">Situazione 1 di 6</span><span id="chPts">0 punti</span></div>
+    <div class="card"><p class="k" id="putSit">Situazione</p><p id="putWho" class="lead"></p></div>
+    <div class="courtbox"><svg class="court drag" id="mSvg" viewBox="-70 -150 1040 1290" role="img" aria-label="Campo su cui trascinare i giocatori"></svg></div>
+    <div class="row">
+      <button id="btnCheck" class="primary">Controlla</button>
+      <button id="btnShow">Mostra la soluzione</button>
+      <button id="btnReset">Ricomincia</button>
+      <button id="btnRandom">Nuova situazione a caso</button>
+    </div>
+    <div class="card feedback" id="putFb" aria-live="polite"><p>Quando hai sistemato tutti, premi Controlla.</p></div>
+  </section>
+
+  <section id="v-quiz" aria-labelledby="t-q" hidden>
+    <h2 id="t-q">Quiz</h2>
+    <div class="score"><span id="qCount">Domanda 1 di 8</span><span id="qPts">0 punti</span></div>
+    <div class="card" id="qBox"></div>
+    <div class="row"><button id="qNext" class="primary" disabled>Avanti</button></div>
+  </section>
+
+  <section id="v-classifica" aria-labelledby="t-c" hidden>
+    <h2 id="t-c">Classifica del gruppo</h2>
+    <p class="lead">Il miglior punteggio di ognuno. A fine partita scrivi il tuo nome e premi "Salva in classifica".</p>
+    <div class="row"><button id="clsRefresh">Aggiorna</button></div>
+    <div class="card"><p class="k">Quiz · su 8</p><div id="cls-md-quiz"><p class="lead">Caricamento...</p></div></div>
+    <div class="card"><p class="k">Trova l'errore · su 10</p><div id="cls-md-errore"><p class="lead">Caricamento...</p></div></div>
+    <div class="card"><p class="k">Mettili tu · sfida su 6</p><div id="cls-md-mettili"><p class="lead">Caricamento...</p></div></div>
+  </section>
+
+  <footer>A cura di Agostino Cannavale</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+
+const SLOTS=["F4","F3","F2","B5","B6","B1"];
+const BACK=["B5","B6","B1"];
+const LINEUP={
+  dietro:{F4:"SA",F3:"C",F2:"O",B5:"L",B6:"SD",B1:"P"},
+  avanti:{F4:"SA",F3:"C",F2:"P",B5:"L",B6:"SD",B1:"O"}
+};
+const LABEL={SA:"S",SD:"S",C:"C",O:"O",P:"P",L:"L"};
+const NAMES={SA:"lo schiacciatore di prima linea",SD:"lo schiacciatore di seconda linea",C:"il centrale",O:"l'opposto",P:"il palleggiatore",L:"il libero"};
+const ALL=["SA","C","O","P","L","SD"];
+const WAIT={F4:[36,8],F3:[112,8],F2:[188,8],B5:[30,104],B6:[112,136],B1:[194,104]};
+const DEF={
+  "4":{F4:[44,50],F3:[160,7],F2:[190,7],B5:[24,96],B6:[100,138],B1:[206,92]},
+  "3":{F4:[56,10],F3:[112,7],F2:[168,10],B5:[32,94],B6:[112,138],B1:[192,94]},
+  "2":{F4:[34,7],F3:[64,7],F2:[180,50],B5:[18,92],B6:[124,138],B1:[200,96]}
+};
+const ATT={ "4":[196,-17], "3":[112,-17], "2":[28,-17] };
+const SHOTS={
+  "4":[[212,128],[22,128],[56,46]],
+  "3":[[40,124],[184,124],[112,132]],
+  "2":[[12,128],[202,128],[168,46]]
+};
+const BLOCKERS={ "4":["F3","F2"], "3":["F3"], "2":["F4","F3"] };
+const ATTNAME={ "4":"Attaccano da zona 4 (davanti alla nostra destra)", "3":"Attaccano dal centro (primo tempo)", "2":"Attaccano da zona 2 (davanti alla nostra sinistra)" };
+const ATTSHORT={ "4":"da zona 4", "3":"dal centro", "2":"da zona 2" };
+const SETNAME={ dietro:"palleggiatore in seconda linea", avanti:"palleggiatore in prima linea" };
+const ROLE={
+  "4":{F4:"si stacca dalla rete fino ai 3 metri sul lato sinistro: prende la diagonale stretta e i pallonetti",
+       F3:"chiude il muro a due accanto al compagno, dal lato del centro",
+       F2:"mura vicino all'asta di destra, davanti al braccio dell'attaccante",
+       B5:"difende la diagonale lunga, sul lato sinistro",
+       B6:"sta in fondo al campo, al centro: palle lunghe e palle toccate dal muro",
+       B1:"difende la parallela sul lato destro, fuori dall'ombra del muro"},
+  "3":{F4:"resta a rete accanto al centrale, pronto a chiudere se serve",
+       F3:"mura da solo sul primo tempo, saltando quasi insieme all'attaccante",
+       F2:"resta a rete accanto al centrale, pronto a chiudere se serve",
+       B5:"difende sul lato sinistro",
+       B6:"sta in fondo al campo, al centro",
+       B1:"difende sul lato destro"},
+  "2":{F4:"mura vicino all'asta di sinistra, davanti al braccio dell'attaccante",
+       F3:"chiude il muro a due accanto al compagno, dal lato del centro",
+       F2:"si stacca dalla rete fino ai 3 metri sul lato destro: prende la diagonale stretta e i pallonetti",
+       B5:"difende la parallela sul lato sinistro, fuori dall'ombra del muro",
+       B6:"sta in fondo al campo, al centro: palle lunghe e palle toccate dal muro",
+       B1:"difende la diagonale lunga, sul lato destro"}
+};
+const toCm=([fx,fy])=>[fx*900/224, fy*6];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function who(setter, slot){ return LINEUP[setter][slot]; }
+function slotOf(setter, id){ return SLOTS.find(s=>LINEUP[setter][s]===id); }
+
+function el(tag, attrs, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function drawCourt(svg, opt){
+  svg.textContent="";
+  el("rect",{x:0,y:0,width:900,height:900,fill:"var(--court)"},svg);
+  const zg=el("g",{"font-family":"Saira Condensed, sans-serif","font-weight":"800","font-size":"120",fill:"#000","fill-opacity":".09","text-anchor":"middle","dominant-baseline":"central"},svg);
+  [[4,150,150],[3,450,150],[2,750,150],[5,150,600],[6,450,600],[1,750,600]].forEach(([n,x,y])=>{ const t=el("text",{x:x,y:y},zg); t.textContent=n; });
+  el("rect",{x:0,y:0,width:900,height:900,fill:"none",stroke:"#fff","stroke-width":10},svg);
+  el("line",{x1:0,x2:900,y1:300,y2:300,stroke:"#fff","stroke-width":10},svg);
+  el("rect",{x:0,y:-140,width:900,height:114,fill:"var(--court)",opacity:".45"},svg);
+  el("rect",{x:-40,y:-26,width:980,height:26,fill:"#0b1426"},svg);
+  el("line",{x1:-40,x2:940,y1:-26,y2:-26,stroke:"#fff","stroke-width":8},svg);
+  el("line",{x1:0,x2:0,y1:-130,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+  el("line",{x1:900,x2:900,y1:-130,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+  const l3=el("text",{x:890,y:340,"text-anchor":"end","font-family":"Atkinson Hyperlegible, sans-serif","font-size":"28",fill:"#fff","fill-opacity":".85"},svg);
+  l3.textContent="linea dei 3 m";
+  if(opt && opt.bench){
+    el("rect",{x:-40,y:960,width:980,height:150,rx:24,fill:"#0b1426","fill-opacity":".55"},svg);
+    const b=el("text",{x:450,y:1135,"text-anchor":"middle","font-family":"Saira Condensed, sans-serif","font-weight":"700","font-size":"32",fill:"#fff","fill-opacity":".8","letter-spacing":"4"},svg);
+    b.textContent="PANCHINA";
+  }
+  const fx=el("g",{},svg);
+  const opp=el("g",{class:"tok"},svg);
+  el("circle",{r:46,fill:"var(--bad)",stroke:"#0b1426","stroke-width":6},opp);
+  const ot=el("text",{x:0,y:2,fill:"#0b1426"},opp); ot.textContent="A";
+  const layer=el("g",{},svg);
+  const toks={};
+  for(const id of ALL){
+    const g=el("g",{class:"tok","data-id":id},layer);
+    const fill = id==="P" ? "var(--ball)" : id==="L" ? "var(--libero)" : "#fff";
+    el("circle",{r:54,cx:0,cy:0,fill:fill,stroke:"#0b1426"},g);
+    const t=el("text",{x:0,y:2,fill:"#0b1426"},g); t.textContent=LABEL[id];
+    toks[id]=g;
+  }
+  return {toks, fx, opp};
+}
+function place(g,x,y){ g.style.transform=`translate(${x}px, ${y}px)`; g._x=x; g._y=y; }
+function showAttack(c, att, arrows){
+  const a=toCm(ATT[att]); place(c.opp,a[0],a[1]); c.fx.textContent="";
+  if(!arrows) return;
+  for(const s of SHOTS[att]){ const b=toCm(s);
+    el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:"var(--bad)","stroke-width":6,"stroke-dasharray":"18 14","stroke-linecap":"round",opacity:".75"},c.fx);
+    el("circle",{cx:b[0],cy:b[1],r:12,fill:"var(--bad)",opacity:".75"},c.fx); }
+}
+
+const VIEWS=["guarda","errore","mettili","quiz","classifica"];
+const state={view:"guarda", att:"4", setter:"dietro", stage:1};
+function route(){
+  let v=(location.hash||"").replace("#",""); if(!VIEWS.includes(v)) v="guarda";
+  VIEWS.forEach(n=>{ document.getElementById("v-"+n).hidden = n!==v; });
+  document.querySelectorAll("nav a").forEach(a=>{ if(a.dataset.view===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  state.view=v;
+}
+
+const G=drawCourt(document.getElementById("gSvg"));
+const attChips=document.getElementById("attChips"), setChips=document.getElementById("setChips");
+[["4","Attacco da zona 4"],["3","Attacco dal centro"],["2","Attacco da zona 2"]].forEach(([k,t])=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=t; b.dataset.k=k; b.addEventListener("click",()=>{ state.att=k; renderG(); }); attChips.appendChild(b); });
+[["dietro","Palleggiatore dietro"],["avanti","Palleggiatore a rete"]].forEach(([k,t])=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=t; b.dataset.k=k; b.addEventListener("click",()=>{ state.setter=k; renderG(); }); setChips.appendChild(b); });
+document.querySelectorAll("#v-guarda .stage button").forEach(b=>b.addEventListener("click",()=>{ stopPlay(); state.stage=+b.dataset.stage; renderG(); }));
+let playT=null; function stopPlay(){ if(playT){ clearTimeout(playT); playT=null; } }
+document.getElementById("btnPlay").addEventListener("click",()=>{ stopPlay(); state.stage=0; renderG(); playT=setTimeout(()=>{ state.stage=1; renderG(); playT=null; },1400); });
+function renderG(){
+  [...attChips.children].forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===state.att));
+  [...setChips.children].forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===state.setter));
+  document.querySelectorAll("#v-guarda .stage button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.stage===state.stage));
+  const pos = state.stage===0 ? WAIT : DEF[state.att];
+  for(const s of SLOTS){ const id=who(state.setter,s), [x,y]=toCm(pos[s]); place(G.toks[id],x,y); }
+  showAttack(G, state.att, state.stage===1);
+  const lu=LINEUP[state.setter];
+  let html=`<p class="k">${ATTNAME[state.att]} · ${SETNAME[state.setter]}</p>`;
+  if(state.stage===0){
+    html+=`<p>In attesa i tre di prima linea stanno a rete, distribuiti su tutta la larghezza. I difensori stanno sui lati in zona 5 e 1, il 6 in fondo. Quando parte l'alzata avversaria, tutti si spostano.</p>`;
+  } else {
+    html+=`<p>Il muro chiude una parte del campo; i difensori si mettono fuori dalla sua ombra. Le frecce rosse sono i colpi più probabili.</p><div class="lines">`;
+    for(const s of SLOTS){ const id=lu[s]; html+=`<b>${LABEL[id]} · zona ${s.slice(1)}</b><span>${cap(NAMES[id])} ${ROLE[state.att][s]}.</span>`; }
+    html+=`</div>`;
+  }
+  document.getElementById("gInfo").innerHTML=html;
+}
+
+const R=190;
+function evaluate(pos, att, setter){
+  const problems=[];
+  for(const s of SLOTS){
+    const id=who(setter,s), p=pos[id], t=toCm(DEF[att][s]);
+    const isBack=BACK.includes(s), atNet=p[1]<=110;
+    if(isBack && atNet && p[0]>=0 && p[0]<=900){
+      problems.push({id, rule:true, text: id==="L" ? `${cap(NAMES[id])} è a rete come per murare: il libero non può murare né tentare il muro.` : `${cap(NAMES[id])} è a rete come per murare, ma è di seconda linea: non può murare.`});
+      continue;
+    }
+    if(BLOCKERS[att].includes(s) && p[1]>110 && Math.hypot(p[0]-t[0],p[1]-t[1])>R){
+      problems.push({id, text:`${cap(NAMES[id])} deve andare a muro: ${ROLE[att][s]}.`}); continue;
+    }
+    if(Math.hypot(p[0]-t[0],p[1]-t[1])>R) problems.push({id, text:`${cap(NAMES[id])} ${ROLE[att][s]}.`});
+  }
+  if(BLOCKERS[att].length===2){
+    const [a,b]=BLOCKERS[att].map(s=>pos[who(setter,s)]);
+    if(a[1]<=110 && b[1]<=110 && Math.abs(a[0]-b[0])>150){
+      const id=who(setter,"F3");
+      if(!problems.some(x=>x.id===id)) problems.push({id, text:`Il muro è aperto: ${NAMES[id]} deve chiudere accanto al compagno, senza lasciare un buco.`});
+    }
+  }
+  return problems;
+}
+
+const E=drawCourt(document.getElementById("eSvg"));
+const err={round:0,pts:0,done:false,cur:null,final:false};
+function makeRound(){
+  const att=["4","3","2"][Math.floor(Math.random()*3)], setter=Math.random()<.5?"dietro":"avanti";
+  const pos={}; for(const s of SLOTS){ pos[who(setter,s)]=toCm(DEF[att][s]); }
+  const kinds=[];
+  if(att!=="3"){ kinds.push("ombra","laterale","aperto"); }
+  kinds.push("sei","difensore","libero");
+  if(Math.random()<0.3){
+    for(const id in pos){ pos[id]=[pos[id][0]+rnd(-12,12), pos[id][1]+(pos[id][1]<60?0:rnd(-12,12))]; }
+    return {att,setter,pos,culprits:[],text:"Era tutto giusto: muro chiuso e difensori fuori dalla sua ombra."};
+  }
+  const k=kinds[Math.floor(Math.random()*kinds.length)];
+  const set=(slot,xy)=>{ const id=who(setter,slot); pos[id]=toCm(xy); return id; };
+  let culprits=[], text="";
+  if(k==="ombra"){ const slot=att==="4"?"B1":"B5"; const id=set(slot, att==="4"?[172,36]:[52,36]);
+    culprits=[id]; text=`${cap(NAMES[id])} si è messo subito dietro il muro, nella sua ombra: lì la palla difficilmente arriva. Doveva difendere la parallela, sulla linea laterale.`; }
+  if(k==="laterale"){ const slot=att==="4"?"F4":"F2"; const id=set(slot, att==="4"?[36,8]:[188,8]);
+    culprits=[id]; text=`${cap(NAMES[id])} è rimasto attaccato alla rete: doveva staccarsi fino ai 3 metri per prendere la diagonale stretta e i pallonetti.`; }
+  if(k==="aperto"){ const id=set("F3", att==="4"?[118,7]:[106,7]); const outer=who(setter, att==="4"?"F2":"F4");
+    culprits=[id,outer]; text=`Il muro è aperto: ${NAMES[id]} è rimasto lontano dal compagno e tra i due c'è un buco da cui passa la palla.`; }
+  if(k==="sei"){ const id=set("B6",[112,70]);
+    culprits=[id]; text=`${cap(NAMES[id])} in zona 6 è a metà campo: con il 6 arretrato deve stare in fondo, per le palle lunghe e quelle toccate dal muro.`; }
+  if(k==="difensore"){ const slot = att==="2" ? "B6" : "B1"; const xy = att==="4"?[128,7]: att==="3"?[140,7]:[96,7];
+    const id=set(slot,xy); culprits=[id]; text=`${cap(NAMES[id])} è di seconda linea e si è messo a muro: un difensore non può murare, sarebbe fallo.`; }
+  if(k==="libero"){ const xy = att==="4"?[128,7]: att==="3"?[84,7]:[96,7];
+    const id=set("B5",xy); culprits=[id]; text=`Il libero si è messo a muro: il libero non può murare né tentare il muro.`; }
+  return {att,setter,pos,culprits,text};
+}
+function newErr(){
+  err.cur=makeRound(); err.done=false;
+  const r=err.cur;
+  document.getElementById("errRound").textContent=`Turno ${err.round+1} di 10`;
+  document.getElementById("errPts").textContent=`${err.pts} punti`;
+  document.getElementById("errSit").textContent=`${ATTNAME[r.att]} · ${SETNAME[r.setter]}`;
+  for(const id of ALL){ E.toks[id].classList.remove("hit","ok"); place(E.toks[id], r.pos[id][0], r.pos[id][1]); }
+  showAttack(E, r.att, false);
+  document.getElementById("btnNext").disabled=true; document.getElementById("btnRegular").disabled=false;
+  const fb=document.getElementById("errFb"); fb.className="card feedback"; fb.innerHTML="<p>Tocca il giocatore nel posto sbagliato, oppure dichiara che è tutto giusto.</p>";
+}
+function answerErr(tapped){
+  if(err.done) return; err.done=true;
+  const r=err.cur, fb=document.getElementById("errFb");
+  const right = tapped===null ? r.culprits.length===0 : r.culprits.includes(tapped);
+  if(right) err.pts++;
+  r.culprits.forEach(id=>E.toks[id].classList.add("hit"));
+  if(tapped && !r.culprits.includes(tapped)) E.toks[tapped].classList.add("ok");
+  showAttack(E, r.att, true);
+  fb.className="card feedback "+(right?"good":"bad");
+  fb.innerHTML=`<p class="verdict">${right?"Giusto":"Sbagliato"}</p><p>${r.text}</p>`;
+  document.getElementById("errPts").textContent=`${err.pts} punti`;
+  document.getElementById("btnRegular").disabled=true;
+  const nx=document.getElementById("btnNext"); nx.disabled=false; if(err.round===9) nx.textContent="Vedi il risultato";
+}
+for(const id of ALL){ E.toks[id].style.cursor="pointer"; E.toks[id].addEventListener("click",()=>answerErr(id)); }
+document.getElementById("btnRegular").addEventListener("click",()=>answerErr(null));
+document.getElementById("btnNext").addEventListener("click",()=>{
+  const nx=document.getElementById("btnNext");
+  if(err.round===9 && err.done && !err.final){
+    err.final=true; const fb=document.getElementById("errFb"); fb.className="card feedback good";
+    fb.innerHTML=`<p class="verdict">${err.pts} su 10</p><p>${err.pts>=9?"Difesa da serie A.":err.pts>=6?"Buona base: ripassa la sezione Guarda.":"Riguarda la sezione Guarda e riprova."}</p>`;
+    fb.appendChild(saveBox("md-errore", err.pts));
+    nx.textContent="Gioca di nuovo"; return;
+  }
+  if(err.final){ err.round=0; err.pts=0; err.final=false; nx.textContent="Avanti"; newErr(); return; }
+  err.round++; newErr();
+});
+
+const mSvg=document.getElementById("mSvg");
+const M=drawCourt(mSvg,{bench:true});
+const SITS=[]; ["4","3","2"].forEach(a=>["dietro","avanti"].forEach(s=>SITS.push([a,s])));
+const put={sit:Math.floor(Math.random()*6)};
+function resetPut(){
+  const [att,setter]=SITS[put.sit];
+  document.getElementById("putSit").textContent=`${ATTNAME[att]} · ${SETNAME[setter]}`;
+  const lu=LINEUP[setter];
+  document.getElementById("putWho").textContent=`Prima linea: ${LABEL[lu.F4]} in zona 4, ${LABEL[lu.F3]} in zona 3, ${LABEL[lu.F2]} in zona 2. Seconda linea: ${LABEL[lu.B5]} in zona 5, ${LABEL[lu.B6]} in zona 6, ${LABEL[lu.B1]} in zona 1.`;
+  shuffle(ALL.slice()).forEach((id,i)=>{ M.toks[id].classList.remove("hit","ok"); place(M.toks[id], 100+i*140, 1035); });
+  showAttack(M, att, false);
+  const fb=document.getElementById("putFb"); fb.className="card feedback"; fb.innerHTML="<p>Quando hai sistemato tutti, premi Controlla.</p>";
+}
+let drag=null;
+function svgPoint(svg,e){ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+for(const id of ALL){
+  const g=M.toks[id]; g.style.cursor="grab";
+  g.addEventListener("pointerdown",e=>{ e.preventDefault(); g.setPointerCapture(e.pointerId); const p=svgPoint(mSvg,e); drag={g,dx:g._x-p.x,dy:g._y-p.y}; g.classList.add("dragging"); g.parentNode.appendChild(g); g.classList.remove("hit","ok"); });
+  g.addEventListener("pointermove",e=>{ if(!drag||drag.g!==g) return; const p=svgPoint(mSvg,e); place(g, Math.max(-20,Math.min(920,p.x+drag.dx)), Math.max(0,Math.min(1080,p.y+drag.dy))); });
+  const end=()=>{ if(drag&&drag.g===g){ g.classList.remove("dragging"); drag=null; } };
+  g.addEventListener("pointerup",end); g.addEventListener("pointercancel",end);
+}
+const ch={on:false,order:[],i:0,pts:0,checked:false};
+function chUI(){
+  document.getElementById("chScore").hidden=!ch.on;
+  ["btnShow","btnRandom"].forEach(id=>document.getElementById(id).disabled=ch.on);
+  document.getElementById("btnChallenge").textContent= ch.on ? "Esci dalla sfida" : "Sfida: tutte e 6 le situazioni";
+  if(ch.on){ document.getElementById("chRound").textContent=`Situazione ${ch.i+1} di 6`; document.getElementById("chPts").textContent=`${ch.pts} punti`; }
+}
+document.getElementById("btnChallenge").addEventListener("click",()=>{
+  if(ch.on){ ch.on=false; chUI(); resetPut(); return; }
+  ch.on=true; ch.order=shuffle([0,1,2,3,4,5]); ch.i=0; ch.pts=0; ch.checked=false; put.sit=ch.order[0]; resetPut(); chUI();
+});
+document.getElementById("btnReset").addEventListener("click",resetPut);
+document.getElementById("btnRandom").addEventListener("click",()=>{ let n; do{ n=Math.floor(Math.random()*6); }while(n===put.sit); put.sit=n; resetPut(); });
+document.getElementById("btnShow").addEventListener("click",()=>{
+  const [att,setter]=SITS[put.sit];
+  for(const s of SLOTS){ const id=who(setter,s), [x,y]=toCm(DEF[att][s]); M.toks[id].classList.remove("hit","ok"); place(M.toks[id],x,y); }
+  showAttack(M, att, true);
+  const fb=document.getElementById("putFb"); fb.className="card feedback good";
+  fb.innerHTML=`<p class="verdict">Soluzione</p><div class="lines">${SLOTS.map(s=>{ const id=who(setter,s); return `<b>${LABEL[id]} · zona ${s.slice(1)}</b><span>${cap(NAMES[id])} ${ROLE[att][s]}.</span>`; }).join("")}</div>`;
+});
+function chAfter(ok){
+  if(!ch.on || ch.checked) return; ch.checked=true; if(ok) ch.pts++; chUI();
+  const fb=document.getElementById("putFb");
+  const p=document.createElement("p"); p.className="lead"; p.textContent= ok ? "Punto!" : "Niente punto per questa situazione: puoi correggere e ricontrollare per imparare."; fb.appendChild(p);
+  const row=document.createElement("div"); row.className="row"; const b=document.createElement("button"); b.className="primary";
+  if(ch.i<5){ b.textContent="Prossima situazione"; b.addEventListener("click",()=>{ ch.i++; ch.checked=false; put.sit=ch.order[ch.i]; resetPut(); chUI(); }); }
+  else { b.textContent="Vedi il risultato"; b.addEventListener("click",()=>{ const tot=ch.pts; ch.on=false; chUI();
+    fb.className="card feedback good"; fb.innerHTML=`<p class="verdict">${tot} su 6</p><p>${tot===6?"Muro e difesa perfetti.":tot>=4?"Buono: ripassa le situazioni sbagliate nella sezione Guarda.":"Riguarda la sezione Guarda e riprova la sfida."}</p>`;
+    fb.appendChild(saveBox("md-mettili", tot)); }); }
+  row.appendChild(b); fb.appendChild(row);
+}
+document.getElementById("btnCheck").addEventListener("click",()=>{
+  const [att,setter]=SITS[put.sit], fb=document.getElementById("putFb");
+  const pos={}, out=[];
+  for(const id of ALL){ const g=M.toks[id]; pos[id]=[g._x,g._y]; g.classList.remove("hit","ok"); if(g._x<0||g._x>900||g._y<0||g._y>900) out.push(id); }
+  if(out.length){ out.forEach(id=>M.toks[id].classList.add("hit")); fb.className="card feedback bad";
+    fb.innerHTML=`<p class="verdict">Manca qualcuno</p><p>${out.map(id=>cap(NAMES[id])).join(", ")} ${out.length>1?"non sono":"non è"} ancora in campo.</p>`; return; }
+  const pr=evaluate(pos,att,setter);
+  showAttack(M, att, true);
+  if(!pr.length){ ALL.forEach(id=>M.toks[id].classList.add("ok")); fb.className="card feedback good";
+    fb.innerHTML=`<p class="verdict">Giusto</p><p>Muro chiuso e difensori nei posti giusti.</p>`; chAfter(true); return; }
+  pr.forEach(x=>M.toks[x.id].classList.add("hit"));
+  fb.className="card feedback bad";
+  fb.innerHTML=`<p class="verdict">${pr.some(x=>x.rule)?"Fallo":"Da sistemare"}</p>${pr.map(x=>`<p>${x.text}</p>`).join("")}`;
+  chAfter(false);
+});
+
+const QUIZ=[
+{q:"Chi può fare muro?",o:["Solo i tre giocatori di prima linea","Tutti e sei","Anche il libero","Solo i centrali"],e:"I difensori e il libero non possono murare."},
+{q:"Il libero può tentare il muro?",o:["No, mai","Sì, se è in zona 6","Solo sul primo tempo","Sì, ma non può schiacciare"],e:"Il libero non può murare né tentare il muro."},
+{q:"Il palleggiatore di seconda linea arriva a rete. Può murare?",o:["No, resta un difensore","Sì, una volta a rete","Solo sul primo tempo","Solo se il muro è a tre"],e:"Chi è di seconda linea al momento della battuta resta difensore per tutta l'azione."},
+{q:"Il tocco di muro conta tra i tre tocchi di squadra?",o:["No","Sì","Conta come mezzo tocco","Solo se il muro è a due"],e:"Dopo il muro la squadra ha ancora tre tocchi."},
+{q:"Dopo un tocco di muro, quanti tocchi restano alla squadra?",o:["3","2","1","Nessuno"],e:"Il muro non si conta."},
+{q:"Chi ha murato può toccare di nuovo la palla subito dopo?",o:["Sì","No, è doppia","Solo se è il centrale","Solo dopo un tocco di un compagno"],e:"Il tocco di muro non fa scattare il doppio tocco."},
+{q:"Si può murare la battuta avversaria?",o:["No","Sì","Solo se è lenta","Solo il centrale"],e:"Murare il servizio è fallo."},
+{q:"A muro si può mettere le mani oltre la rete?",o:["Sì, ma senza toccare la palla prima dell'attacco avversario","No, mai","Sì, sempre e comunque","Solo con una mano"],e:"Toccare la palla nello spazio avversario prima o insieme al colpo d'attacco è fallo."},
+{q:"Il murante tocca la rete tra le aste durante l'azione. Cosa succede?",o:["È fallo","È regolare","Si ripete l'azione","È fallo solo se fa punto"],e:"Il contatto con la rete tra le aste durante l'azione è fallo."},
+{q:"La palla tocca il muro ed esce dal campo. Di chi è il punto?",o:["Di chi ha attaccato","Di chi ha murato","Si ripete","Dipende da dove esce"],e:"È il mani e fuori: l'ultimo tocco è del muro."},
+{q:"Quanti giocatori possono partecipare al muro al massimo?",o:["Tre, quelli di prima linea","Due","Quattro","Sei"],e:"Possono murare solo i tre di prima linea."},
+{q:"Gli avversari attaccano da zona 4. Chi forma il nostro muro a due?",o:["Il nostro giocatore di zona 2 e il centrale","Il nostro zona 4 e il centrale","I due laterali","Il centrale da solo"],e:"La zona 4 avversaria sta davanti alla nostra destra, cioè alla nostra zona 2."},
+{q:"Gli avversari attaccano da zona 2. Chi forma il nostro muro a due?",o:["Il nostro giocatore di zona 4 e il centrale","Il nostro zona 2 e il centrale","I due laterali","Il libero e il centrale"],e:"La zona 2 avversaria sta davanti alla nostra sinistra."},
+{q:"Gli avversari attaccano da zona 4. Cosa fa il nostro giocatore di zona 4?",o:["Si stacca dalla rete fino ai 3 metri","Va a murare a destra","Resta fermo a rete","Va in fondo al campo"],e:"Non serve a muro: copre la diagonale stretta e i pallonetti."},
+{q:"Perché il laterale che non mura si stacca dalla rete?",o:["Per prendere la diagonale stretta e i pallonetti","Per prepararsi a battere","Per lasciare spazio al libero","Perché è obbligatorio"],e:"Sono i colpi che arrivano vicino alla rete, lontano dal muro."},
+{q:"Nella difesa con il 6 arretrato, dove sta il giocatore di zona 6?",o:["In fondo al campo, al centro","Dietro il muro","Sulla linea dei 3 metri","A rete"],e:"È il sistema descritto nel manuale."},
+{q:"Cosa copre il 6 arretrato?",o:["Le palle lunghe e quelle toccate dal muro","I pallonetti","La diagonale stretta","Il primo tempo"],e:"I pallonetti li prende il laterale che si stacca."},
+{q:"Gli avversari attaccano da zona 4. Chi difende la parallela?",o:["Il nostro difensore di zona 1","Il nostro difensore di zona 5","Il 6","Il laterale di zona 4"],e:"La parallela di un attacco da zona 4 avversaria finisce lungo la nostra linea laterale destra."},
+{q:"Gli avversari attaccano da zona 4. Chi difende la diagonale lunga?",o:["Il nostro difensore di zona 5","Il nostro difensore di zona 1","Il centrale","Il 6"],e:"La diagonale lunga va verso la nostra sinistra in fondo."},
+{q:"Gli avversari attaccano da zona 2. Chi difende la parallela?",o:["Il nostro difensore di zona 5","Il nostro difensore di zona 1","Il 6","Il laterale di zona 2"],e:"È la situazione speculare: la parallela finisce lungo la nostra linea laterale sinistra."},
+{q:"Cos'è l'ombra del muro?",o:["La zona dietro il muro dove la palla difficilmente arriva diretta","La parte di campo vicino alla rete","Un tipo di muro","La zona del libero"],e:"I difensori si mettono fuori dall'ombra, dove la palla può arrivare."},
+{q:"Dove non deve mettersi un difensore?",o:["Nell'ombra del muro","Sulla linea laterale","In fondo al campo","In zona 5"],e:"Lì la palla difficilmente arriva: sarebbe un difensore sprecato."},
+{q:"Dove si mette il murante vicino all'asta?",o:["Davanti al braccio d'attacco dell'attaccante","Al centro della rete","Dietro il centrale","Dove vuole"],e:"Così chiude il colpo principale."},
+{q:"Nel muro a due, chi va a chiudere vicino al compagno?",o:["Il centrale","Il libero","Il difensore di zona 6","Il palleggiatore di seconda linea"],e:"Il centrale si sposta lungo la rete verso il laterale."},
+{q:"Cosa vuol dire muro aperto?",o:["Tra i due muranti c'è un buco","Il muro salta in anticipo","Le mani sono troppo larghe","Il muro è a tre"],e:"La palla passa in mezzo ai due muranti."},
+{q:"Su una palla alta in banda, quando salta il muro?",o:["Dopo l'attaccante","Prima dell'attaccante","Quando l'alzatore tocca la palla","Non salta"],e:"Sulla palla alta l'attaccante salta per primo."},
+{q:"Sul primo tempo avversario, chi mura di solito?",o:["Il centrale, quasi insieme all'attaccante","I due laterali","Il libero","Nessuno"],e:"Il primo tempo è veloce: c'è tempo solo per il centrale."},
+{q:"Gli avversari attaccano dal centro con un primo tempo. Cosa fanno i nostri laterali di prima linea?",o:["Restano a rete accanto al centrale, pronti a chiudere","Vanno in fondo al campo","Si staccano fino ai 3 metri","Escono dal campo"],e:"Se il primo tempo è veloce, il centrale mura da solo."},
+{q:"Cos'è il muro a lettura?",o:["Si aspetta di vedere dove va l'alzata e poi ci si sposta","Si salta sempre sul centrale","Si mura senza saltare","Si legge il numero di maglia"],e:"È il modo più sicuro per chi è all'inizio."},
+{q:"Cos'è il muro a opzione?",o:["Il centrale decide prima di saltare sul primo tempo","Si sceglie chi mura con il sorteggio","Si mura solo sulle palle alte","Murano tutti e tre sempre"],e:"Si rischia per fermare il primo tempo."},
+{q:"Come deve essere il difensore al momento del colpo avversario?",o:["Basso e fermo","In corsa verso la palla","In piedi e dritto","Girato verso la rete"],e:"Chi si sta ancora muovendo difende male."},
+{q:"In difesa, dove conviene mandare la palla?",o:["Alta e verso il centro del campo","Subito di là","Fuori dal campo","Bassa e veloce sull'alzatore"],e:"Una palla alta è sempre rigiocabile."},
+{q:"Come orienta la mano esterna il murante vicino all'asta?",o:["Verso il campo, per evitare il mani e fuori","Verso l'esterno","Verso l'alto","Non conta"],e:"Così la palla toccata resta in campo."},
+{q:"In fase break, dove difende di solito il libero?",o:["In zona 5","In zona 1","A rete","In zona 6"],e:"È lo schema standard del manuale."},
+{q:"In fase break, dove difende il palleggiatore di seconda linea?",o:["In zona 1","In zona 5","In zona 6","A rete"],e:"Da zona 1 la corsa al punto di alzata è la più corta."},
+{q:"In attesa del muro, dove stanno i tre di prima linea?",o:["A rete, distribuiti su tutta la larghezza","Tutti al centro","Sui 3 metri","In fondo al campo"],e:"Da lì possono spostarsi verso qualsiasi zona d'attacco."},
+{q:"Quando si spostano i giocatori dall'attesa alla difesa?",o:["Quando parte l'alzata avversaria","Al fischio dell'arbitro","Quando la palla supera la rete","Dopo il punto"],e:"L'alzata dice da dove arriverà l'attacco."},
+{q:"Cos'è la copertura dell'attacco?",o:["I compagni si avvicinano all'attaccante per recuperare la palla murata","Un muro a tre","La difesa del libero","Coprire la rete con le mani"],e:"Lo schema base è con tre giocatori vicini e due più indietro."},
+{q:"Dopo una difesa riuscita, cosa succede?",o:["Si contrattacca: l'alzatore corre al punto di alzata","Si aspetta il fischio","Si rimanda subito di là","Si cambia campo"],e:"La difesa diventa subito attacco."},
+{q:"Se la difesa è imprecisa, cosa conviene alzare?",o:["Una palla alta in banda o all'opposto","Un primo tempo","Una fast","Niente: si rimanda di là di bagher"],e:"La palla alta dà tempo all'attaccante."},
+{q:"Un difensore salta a muro vicino alla rete e tocca la palla attaccata. Cosa succede?",o:["È fallo: muro di un difensore","È regolare","È regolare se fa punto","Si ripete l'azione"],e:"Solo i giocatori di prima linea possono murare."},
+{q:"Perché il 6 arretrato non sta dietro al muro?",o:["Perché i pallonetti li copre il laterale staccato da rete","Perché il regolamento lo vieta","Perché deve battere","Perché è il libero"],e:"In fondo al campo copre le palle lunghe, il pericolo più grande."},
+{q:"Attacco avversario da zona 4: in che zona si stacca il nostro laterale che non mura?",o:["Ai 3 metri, sul lato sinistro","Ai 3 metri, sul lato destro","In fondo a destra","Al centro della rete"],e:"È il nostro zona 4, che si trova a sinistra."}
+];
+const quiz={list:[],i:0,pts:0,answered:false};
+function startQuiz(){ quiz.list=shuffle(QUIZ.slice()).slice(0,8).map(q=>{ const idx=shuffle([0,1,2,3]); return {q:q.q,e:q.e,o:idx.map(k=>q.o[k]),a:idx.indexOf(0)}; }); quiz.i=0; quiz.pts=0; renderQ(); }
+function renderQ(){
+  const box=document.getElementById("qBox"), nx=document.getElementById("qNext");
+  document.getElementById("qPts").textContent=`${quiz.pts} punti`;
+  if(quiz.i>=quiz.list.length){
+    document.getElementById("qCount").textContent="Fine";
+    box.innerHTML=`<p style="font-family:var(--display);font-size:30px;font-weight:800;color:var(--ball);margin:0">${quiz.pts} su ${quiz.list.length}</p><p>${quiz.pts===quiz.list.length?"Perfetto.":quiz.pts>=6?"Bene: ripassa solo quelle sbagliate.":"Riguarda la sezione Guarda e riprova."}</p>`;
+    box.appendChild(saveBox("md-quiz", quiz.pts));
+    nx.textContent="Nuovo quiz"; nx.disabled=false; return;
+  }
+  const q=quiz.list[quiz.i]; quiz.answered=false;
+  document.getElementById("qCount").textContent=`Domanda ${quiz.i+1} di ${quiz.list.length}`;
+  box.innerHTML=`<p class="q">${q.q}</p><div class="opts">${q.o.map((t,k)=>`<button data-k="${k}">${t}</button>`).join("")}</div><p id="qExp" class="lead" aria-live="polite"></p>`;
+  box.querySelectorAll(".opts button").forEach(b=>b.addEventListener("click",()=>{
+    if(quiz.answered) return; quiz.answered=true; const k=+b.dataset.k; if(k===q.a) quiz.pts++;
+    box.querySelectorAll(".opts button").forEach(x=>{ const kk=+x.dataset.k; if(kk===q.a) x.classList.add("right"); else if(kk===k) x.classList.add("wrong"); x.disabled=true; x.style.opacity="1"; });
+    document.getElementById("qExp").textContent=(k===q.a?"Giusto. ":"Sbagliato. ")+q.e;
+    document.getElementById("qPts").textContent=`${quiz.pts} punti`; nx.disabled=false;
+  }));
+  nx.textContent= quiz.i===quiz.list.length-1 ? "Vedi il risultato" : "Avanti"; nx.disabled=true;
+}
+document.getElementById("qNext").addEventListener("click",()=>{ if(quiz.i>=quiz.list.length){ startQuiz(); return; } quiz.i++; renderQ(); });
+
+const FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSeoBKGKZ9ho7xn4QdgMTyGoWLD7bphUE9ISE8ZzMyUqsAV8xQ/formResponse";
+const F_NOME="entry.870443580", F_GIOCO="entry.816963454", F_PUNTI="entry.916483719";
+const SHEET_URL="https://docs.google.com/spreadsheets/d/1Pnt6-Z_t76KyywXV4TSuCRX8pqZkldjfLWj0Q6hdLUY/gviz/tq?tqx=out:json&headers=1&tq="+encodeURIComponent("select A,B,C,D");
+const MAXP={"md-quiz":8,"md-errore":10,"md-mettili":6};
+function getName(){ try{ return localStorage.getItem("lv-nome")||""; }catch(e){ return ""; } }
+function setName(n){ try{ localStorage.setItem("lv-nome",n); }catch(e){} }
+function cleanName(n){ return n.replace(/\s+/g," ").trim().slice(0,20); }
+function saveBox(gioco, punti){
+  const id="save-"+gioco, wrap=document.createElement("div");
+  wrap.innerHTML=`<div class="save"><label for="${id}-in" class="lead" style="flex-basis:100%">Il tuo nome per la classifica</label><input id="${id}-in" maxlength="20" autocomplete="nickname" placeholder="Nome o soprannome"><button id="${id}-btn" class="primary">Salva in classifica</button></div><p id="${id}-msg" class="lead" aria-live="polite"></p>`;
+  const inp=wrap.querySelector("input"), btn=wrap.querySelector("button"), msg=wrap.querySelector("#"+id+"-msg");
+  inp.value=getName();
+  btn.addEventListener("click", async ()=>{
+    const n=cleanName(inp.value);
+    if(n.length<2){ msg.textContent="Scrivi un nome di almeno 2 lettere."; inp.focus(); return; }
+    btn.disabled=true; msg.textContent="Salvataggio..."; setName(n);
+    try{ await fetch(FORM_URL,{method:"POST",mode:"no-cors",body:new URLSearchParams({[F_NOME]:n,[F_GIOCO]:gioco,[F_PUNTI]:String(punti)})});
+      msg.textContent=`Salvato: ${n}, ${punti} su ${MAXP[gioco]}. Lo trovi nella sezione Classifica.`;
+    }catch(e){ btn.disabled=false; msg.textContent="Non sono riuscito a salvare: controlla la connessione e riprova."; }
+  });
+  return wrap;
+}
+function renderBoard(box, rows){
+  box.textContent="";
+  if(!rows.length){ const p=document.createElement("p"); p.className="lead"; p.textContent="Ancora nessun punteggio: inizia tu."; box.appendChild(p); return; }
+  const t=document.createElement("table"); t.className="board";
+  t.innerHTML='<thead><tr><th>#</th><th>Nome</th><th>Partite</th><th style="text-align:right">Record</th></tr></thead>';
+  const tb=document.createElement("tbody");
+  rows.slice(0,15).forEach((r,i)=>{ const tr=document.createElement("tr");
+    [String(i+1), r.nome, String(r.partite)].forEach(v=>{ const td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
+    const td=document.createElement("td"); td.className="n"; td.textContent=r.best; tr.appendChild(td); tb.appendChild(tr); });
+  t.appendChild(tb); box.appendChild(t);
+}
+async function loadBoard(){
+  const keys=Object.keys(MAXP), boxes=keys.map(k=>document.getElementById("cls-"+k));
+  try{
+    const txt=await (await fetch(SHEET_URL+"&t="+Date.now())).text();
+    const data=JSON.parse(txt.slice(txt.indexOf("(")+1, txt.lastIndexOf(")")));
+    const agg={}; keys.forEach(k=>agg[k]={});
+    (data.table.rows||[]).forEach(r=>{
+      const c=r.c||[]; const nome=c[1]&&c[1].v, gioco=c[2]&&c[2].v, p=c[3]&&c[3].v;
+      if(!nome||!(gioco in agg)||typeof p!=="number") return;
+      if(p<0||p>MAXP[gioco]||Math.round(p)!==p) return;
+      const n=cleanName(String(nome)); if(n.length<2) return;
+      const k=n.toLowerCase(), a=agg[gioco][k]||(agg[gioco][k]={nome:n,best:0,partite:0});
+      a.partite++; if(p>a.best) a.best=p;
+    });
+    keys.forEach((k,i)=>renderBoard(boxes[i], Object.values(agg[k]).sort((x,y)=>y.best-x.best||y.partite-x.partite||x.nome.localeCompare(y.nome))));
+  }catch(e){
+    boxes.forEach(b=>{ b.innerHTML='<p class="lead">Classifica non raggiungibile da qui. Aprila dal sito Lavagna Volley: neoramses14031984.github.io/lavagna-volley</p>'; });
+  }
+}
+document.getElementById("clsRefresh").addEventListener("click",loadBoard);
+window.addEventListener("hashchange",()=>{ route(); if(location.hash==="#classifica") loadBoard(); });
+
+route(); renderG(); newErr(); resetPut(); startQuiz(); if(state.view==="classifica") loadBoard();
+})();
+</script>
+</body>
+</html>
