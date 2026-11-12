@@ -25,9 +25,17 @@ h1{font-family:var(--display);font-weight:800;font-size:46px;line-height:.95;mar
 h1 span{color:var(--ball)}
 p{margin:0}
 .sub{color:var(--muted)}
-.list{display:flex;flex-direction:column;gap:10px}
-a.item{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--text);background:rgba(24,51,91,.82);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);box-shadow:0 8px 25px rgba(0,0,0,.18);border:1px solid rgba(115,155,215,.25);border-left:6px solid var(--court);border-radius:12px;padding:14px 16px}
-a.item:hover,a.item:focus-visible{border-color:var(--ball);outline:none}
+.list{display:flex;flex-direction:column;gap:18px}
+.group{display:flex;flex-direction:column;gap:10px}
+.glabel{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:4px 0 -2px 2px}
+a.item{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--text);background:rgba(24,51,91,.82);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);box-shadow:0 8px 25px rgba(0,0,0,.18);border:1px solid rgba(115,155,215,.25);border-left:6px solid var(--court);border-radius:12px;padding:14px 16px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+a.item .go{transition:transform .18s ease}
+a.item:hover,a.item:focus-visible,a.item:active{transform:translateY(-3px);border-color:var(--ball);box-shadow:0 12px 30px rgba(0,0,0,.25),0 0 18px rgba(255,210,63,.22);outline:none}
+a.item:hover .go,a.item:focus-visible .go,a.item:active .go{transform:translateX(4px)}
+a.item.star{background:rgba(44,74,120,.9);border-color:rgba(255,210,63,.55);border-left-color:var(--ball);padding:16px 16px}
+a.item.star .ico{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:rgba(255,210,63,.14);display:flex;align-items:center;justify-content:center}
+a.item.star b{color:var(--ball)}
+@media (prefers-reduced-motion:reduce){a.item,a.item .go{transition:none}a.item:hover,a.item:focus-visible,a.item:active{transform:none}a.item:hover .go,a.item:focus-visible .go,a.item:active .go{transform:none}}
 a.item b{display:block;font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.4px}
 a.item small{color:var(--muted);font-size:15px}
 a.item .go{margin-left:auto;font-family:var(--display);font-size:28px;color:var(--ball)}
@@ -54,26 +62,36 @@ body{position:relative}
   <h1>Lavagna <span>Volley</span></h1>
   <p class="sub">Il materiale del gruppo.</p>
   <div class="list">
-    <a class="item" href="rotazioni-in-campo/">
-      <div><b>Rotazioni in campo</b><small>Guarda le rotazioni del 5-1, trova l'errore, mettili tu e il quiz.</small></div>
-      <span class="go" aria-hidden="true">›</span>
-    </a>
-    <a class="item" href="muro-e-difesa/">
-      <div><b>Muro e difesa</b><small>Dove va ognuno quando attaccano gli avversari: guarda, trova l'errore, mettili tu e il quiz.</small></div>
-      <span class="go" aria-hidden="true">›</span>
-    </a>
-    <a class="item" href="lavagna/">
-      <div><b>La lavagna</b><small>Lavagna tattica: prepara un'azione a passaggi, riproducila e mandala al gruppo.</small></div>
-      <span class="go" aria-hidden="true">›</span>
-    </a>
-    <a class="item" href="il-perche/">
-      <div><b>Il perché</b><small>Battuta, ricezione, attacco, copertura, muro e difesa: tocca un giocatore e scopri cosa fa e perché.</small></div>
-      <span class="go" aria-hidden="true">›</span>
-    </a>
-    <a class="item" href="tecnica/">
-      <div><b>La tecnica</b><small>Bagher, palleggio, battute, rincorsa e attacco, muro, difesa: posizione, movimento ed errori tipici.</small></div>
-      <span class="go" aria-hidden="true">›</span>
-    </a>
+    <div class="group">
+      <p class="glabel">Strumenti</p>
+      <a class="item star" href="lavagna/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="28" height="28"><rect x="3" y="5" width="26" height="19" rx="3" fill="none" stroke="#ffd23f" stroke-width="2.4"/><path d="M8 19 Q13 10 20 13" fill="none" stroke="#eef2f8" stroke-width="2.2" stroke-dasharray="3 2.5" stroke-linecap="round"/><path d="M18.5 10.5 L21.5 13.3 L17.6 14.6" fill="none" stroke="#eef2f8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="17.5" r="2.6" fill="#ffd23f"/><path d="M12 24 L10 29 M20 24 L22 29" stroke="#ffd23f" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+        <div><b>La lavagna</b><small>Prepara un'azione a passaggi, riproducila e mandala al gruppo.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+    </div>
+    <div class="group">
+      <p class="glabel">Impara</p>
+      <a class="item" href="il-perche/">
+        <div><b>Il perché</b><small>Cosa fa ogni giocatore in ogni fase, e perché.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+      <a class="item" href="tecnica/">
+        <div><b>La tecnica</b><small>I fondamentali: posizione, movimento ed errori.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+    </div>
+    <div class="group">
+      <p class="glabel">Allenati</p>
+      <a class="item" href="rotazioni-in-campo/">
+        <div><b>Rotazioni in campo</b><small>Impara il 5-1 con simulazioni, errori da trovare e quiz.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+      <a class="item" href="muro-e-difesa/">
+        <div><b>Muro e difesa</b><small>Muro e posizioni di difesa contro l'attacco avversario.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+    </div>
   </div>
   <footer>A cura di Agostino Cannavale</footer>
 </div>
