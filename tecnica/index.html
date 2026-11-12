@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tecnica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0f1d33;
+  --panel:#172a4b;
+  --line:#2a4069;
+  --text:#eef2f8;
+  --muted:#a3b3cf;
+  --court:#e2843f;
+  --freezone:#2563a8;
+  --ball:#ffd23f;
+  --libero:#2ec4b6;
+  --good:#4cc38a;
+  --bad:#ff6b6b;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--night);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-direction:column;gap:2px}
+a.home{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.5px;color:var(--night);background:var(--ball);text-decoration:none;border-radius:10px;padding:8px 14px 7px 12px;margin-bottom:10px;line-height:1}
+a.home:hover{filter:brightness(1.06)}
+a.home:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:.5px;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--ball)}
+.sub{color:var(--muted);font-size:15px;margin:0}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;position:sticky;top:0;z-index:5;background:var(--night);padding:8px 0}
+nav a{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;text-align:center;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 4px;line-height:1.05}
+nav a[aria-current="page"]{color:var(--night);background:var(--ball);border-color:var(--ball)}
+nav a:focus-visible,button:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+section[hidden]{display:none}
+section{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;text-transform:uppercase;margin:0;line-height:1.05}
+.lead{margin:0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button{font-family:var(--body);font-size:15px;font-weight:700;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
+button.chip{padding:7px 12px;font-family:var(--display);font-size:17px;letter-spacing:.5px}
+button.chip[aria-pressed="true"]{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button.primary{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1 1 auto}
+.stage{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stage button{padding:9px 6px;font-size:14px;line-height:1.15}
+.stage button[aria-pressed="true"]{background:var(--libero);color:var(--night);border-color:var(--libero)}
+.courtbox{background:var(--freezone);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+svg.court{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+svg.drag{touch-action:none}
+.tok{transition:transform .75s cubic-bezier(.45,.05,.25,1),opacity .5s}
+.tok.dragging{transition:none}
+.tok circle{stroke-width:6}
+.tok text{font-family:var(--display);font-weight:800;font-size:46px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.tok.hit circle{stroke:var(--bad);stroke-width:14}
+.tok.ok circle{stroke:var(--good);stroke-width:14}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card p{margin:0}
+.card .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ball);font-size:15px}
+.lines{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:15px}
+.lines b{font-family:var(--display);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:14px;text-align:center}
+.zonegrid div{background:var(--night);border-radius:8px;padding:5px 2px}
+.zonegrid small{display:block;color:var(--muted);font-size:12px}
+.zonegrid strong{font-family:var(--display);font-size:20px}
+.score{display:flex;justify-content:space-between;font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase}
+.score span:last-child{color:var(--ball)}
+.feedback{border-left:5px solid var(--line)}
+.feedback.good{border-left-color:var(--good)}
+.feedback.bad{border-left-color:var(--bad)}
+.feedback .verdict{font-family:var(--display);font-size:22px;font-weight:800;text-transform:uppercase}
+.feedback.good .verdict{color:var(--good)}
+.feedback.bad .verdict{color:var(--bad)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;font-weight:400;padding:12px 14px}
+.opts button.right{border-color:var(--good);background:rgba(76,195,138,.18)}
+.opts button.wrong{border-color:var(--bad);background:rgba(255,107,107,.16)}
+.q{font-size:18px;font-weight:700;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.save{display:flex;gap:8px;flex-wrap:wrap}
+.save input{flex:1 1 160px;font:inherit;font-size:16px;color:var(--text);background:var(--night);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.save input:focus-visible{outline:3px solid var(--libero);outline-offset:1px}
+.board{width:100%;border-collapse:collapse;font-size:15px}
+.board th{font-family:var(--display);text-transform:uppercase;letter-spacing:.3px;color:var(--muted);text-align:left;font-weight:700;padding:4px 6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.board td.n{text-align:right;font-family:var(--display);font-size:20px;font-weight:800;color:var(--ball)}
+.board tr:first-child td{font-weight:700}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-top:6px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.tok{transition:none}}
+</style>
+
+<style id="visual-restyling-only">
+:root{--night:#071a34;--panel:#112b4e;--line:#31547f;--text:#f4f7fc;--muted:#b8c8df;--ball:#ffd23f;--libero:#2ec4b6}
+html{min-height:100%;background:#071a34}
+body{min-height:100vh;background-color:#071a34;background-image:linear-gradient(90deg,rgba(4,18,38,.84),rgba(7,26,52,.59) 29%,rgba(7,26,52,.74) 52%,rgba(3,15,33,.79)),linear-gradient(180deg,rgba(6,22,45,.15),rgba(6,22,45,.58)),url("../volley-bg.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat;background-attachment:fixed}
+.wrap{position:relative;max-width:620px;min-height:100vh;padding:28px 22px 44px;background:linear-gradient(180deg,rgba(5,23,47,.70),rgba(8,29,57,.84));border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);box-shadow:0 0 55px rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header{padding:18px;border:1px solid rgba(129,171,230,.22);border-radius:18px;background:linear-gradient(135deg,rgba(22,53,94,.88),rgba(11,34,65,.72));box-shadow:0 14px 35px rgba(0,0,0,.22)}
+a.home{border-radius:999px;box-shadow:0 7px 20px rgba(255,210,63,.18);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}a.home:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(255,210,63,.25)}
+h1{font-size:clamp(38px,8vw,50px);text-shadow:0 3px 18px rgba(0,0,0,.28)}.sub{font-size:16px;color:#c5d3e8}
+nav{top:8px;padding:8px;border:1px solid rgba(129,171,230,.22);border-radius:16px;background:rgba(7,25,51,.88);box-shadow:0 12px 30px rgba(0,0,0,.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+nav a{border-radius:11px;background:rgba(29,63,108,.72);transition:transform .16s ease,background .16s ease,border-color .16s ease}nav a:hover{transform:translateY(-1px);background:rgba(39,81,137,.9);color:#fff}nav a[aria-current="page"]{box-shadow:0 6px 18px rgba(255,210,63,.18)}
+section:not([hidden]){padding:18px;border:1px solid rgba(129,171,230,.20);border-radius:18px;background:linear-gradient(180deg,rgba(11,34,65,.84),rgba(8,28,55,.91));box-shadow:0 16px 40px rgba(0,0,0,.25)}
+h2{font-size:30px;color:#fff}
+button{background:linear-gradient(180deg,rgba(33,70,118,.97),rgba(22,51,91,.97));box-shadow:0 6px 15px rgba(0,0,0,.14);transition:transform .16s ease,filter .16s ease,border-color .16s ease}button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);border-color:rgba(255,255,255,.3)}button:active:not(:disabled){transform:translateY(0)}
+button.primary,button.chip[aria-pressed="true"]{background:linear-gradient(180deg,#ffe06a,#ffc928);box-shadow:0 7px 18px rgba(255,210,63,.2)}.stage button[aria-pressed="true"]{background:linear-gradient(180deg,#45d8c8,#28afaa);box-shadow:0 7px 18px rgba(46,196,182,.18)}
+.card{background:linear-gradient(135deg,rgba(28,61,104,.9),rgba(18,44,79,.85));border-color:rgba(134,177,235,.27);border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.16);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.courtbox{padding:8px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:linear-gradient(145deg,rgba(41,108,173,.94),rgba(22,72,131,.96));box-shadow:0 18px 38px rgba(0,0,0,.33),inset 0 1px 0 rgba(255,255,255,.14);overflow:hidden}
+.save input{background:rgba(4,20,42,.72);border-color:rgba(132,174,232,.28)}footer{padding:14px 8px 0;border-top-color:rgba(129,171,230,.22);color:#b9c8de}
+@media(max-width:700px){body{background-position:36% top;background-attachment:scroll}.wrap{max-width:none;padding:12px 10px 30px;border:0;background:linear-gradient(180deg,rgba(5,22,45,.87),rgba(7,27,53,.94));backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}header,section:not([hidden]){padding:14px;border-radius:15px}nav{top:4px;gap:4px;padding:6px}nav a{font-size:13px;padding:9px 2px}h1{font-size:39px}h2{font-size:27px}}
+@media(max-width:420px){nav{grid-template-columns:repeat(5,minmax(0,1fr))}nav a{font-size:12px;letter-spacing:0}.lines{grid-template-columns:1fr;gap:1px}.lines span{margin-bottom:7px}}
+@media(prefers-reduced-motion:reduce){a.home,nav a,button{transition:none}}
+</style>
+
+<style>
+.ctrl{display:flex;flex-direction:column;gap:8px}
+.ctrl .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-size:14px;margin:0}
+.draw{background:rgba(4,20,42,.55);border:1px solid rgba(132,174,232,.22);border-radius:14px;padding:10px}
+.draw svg{display:block;width:100%;height:auto}
+.intro{font-size:16px}
+ul.pts{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px;font-size:15px}
+.card h3{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ball);font-size:17px;margin:0}
+.nav2{display:flex;gap:8px}
+.nav2 button{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="https://neoramses14031984.github.io/lavagna-volley/" aria-label="Torna alla home di Lavagna Volley"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>Home</a>
+    <h1>La <span>tecnica</span></h1>
+    <p class="sub">I fondamentali, uno per scheda: posizione, movimento, errori tipici e il perché di ogni dettaglio.</p>
+  </header>
+  <section aria-labelledby="t-tec">
+    <h2 id="t-tec" hidden>Tecnica</h2>
+    <div class="ctrl"><p class="k">Fondamentale</p><div class="chips" id="chips" role="group" aria-label="Fondamentale"></div></div>
+    <div id="out" aria-live="polite"></div>
+    <div class="nav2"><button id="prev">‹ Precedente</button><button id="next" class="primary">Successivo ›</button></div>
+  </section>
+  <footer>A cura di Agostino Cannavale</footer>
+</div>
+<script>
+(function(){
+"use strict";
+const W="#eef2f8", B="#ffd23f", T="#2ec4b6", M="#a3b3cf", G="#31547f";
+function fig(parts){ return parts.join(""); }
+function line(x1,y1,x2,y2,c,w){ return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c||W}" stroke-width="${w||8}" stroke-linecap="round"/>`; }
+function pl(pts,c,w){ return `<polyline points="${pts}" fill="none" stroke="${c||W}" stroke-width="${w||8}" stroke-linecap="round" stroke-linejoin="round"/>`; }
+function head(x,y){ return `<circle cx="${x}" cy="${y}" r="20" fill="none" stroke="${W}" stroke-width="7"/>`; }
+function ball(x,y){ return `<circle cx="${x}" cy="${y}" r="18" fill="${B}" stroke="#0b1426" stroke-width="3"/>`; }
+function ground(){ return `<line x1="30" y1="386" x2="330" y2="386" stroke="${G}" stroke-width="3"/>`; }
+function lab(px,py,y,lines,strong){ const t=lines.map((s,i)=>`<tspan x="348" dy="${i?24:0}">${s}</tspan>`).join(""); return `<line x1="${px}" y1="${py}" x2="338" y2="${y-7}" stroke="${M}" stroke-width="1.5" stroke-dasharray="5 5"/><circle cx="${px}" cy="${py}" r="4" fill="${M}"/><text x="348" y="${y}" font-family="Atkinson Hyperlegible, Arial, sans-serif" font-size="20" fill="${strong?B:W}" ${strong?'font-weight="700"':''}>${t}</text>`; }
+function svg(body,h){ return `<svg viewBox="0 0 640 ${h||420}" role="img">${body}</svg>`; }
+
+const DRAW={
+bagher: svg(fig([ground(), pl("150,250 182,312 128,376"), pl("150,250 208,300 214,376"), line(112,380,140,380), line(206,380,238,380), line(150,250,205,176), line(205,176,256,221), line(256,221,290,251,T,12), head(226,148), ball(285,221),
+  lab(207,186,140,["Spalle sopra le ginocchia"]), lab(276,240,214,["Braccia tese: un piano unico","contatto sopra i polsi"],true), lab(188,312,300,["Ginocchia piegate, bassi"]), lab(236,380,356,["Peso sulla parte","anteriore del piede"])])),
+palleggio: svg(fig([ground(), pl("170,240 198,306 210,376"), pl("170,240 158,310 136,376"), line(196,380,226,380), line(122,380,150,380), line(170,240,176,150), pl("176,150 224,138 214,96"), line(202,96,228,88,T,10), head(186,120), ball(222,66),
+  lab(220,90,74,["Mani sopra la fronte,","a coppa, dita rilassate"],true), lab(224,138,150,["Gomiti larghi, in fuori"]), lab(174,200,214,["Busto dritto, rivolto","verso il bersaglio"]), lab(198,306,310,["Ginocchia piegate,","pronte a spingere"])])),
+basso: svg(fig([ground(), pl("170,240 205,305 225,376"), pl("170,240 150,310 128,376"), line(214,380,244,380), line(114,380,142,380), line(170,240,185,155), line(185,155,232,232), line(185,155,122,248,T,10), head(196,126), ball(244,246),
+  `<path d="M128 262 Q186 316 232 268" fill="none" stroke="${T}" stroke-width="4" stroke-dasharray="10 8"/>`, `<path d="M150 404 L222 404" stroke="${M}" stroke-width="3"/><path d="M214 398 L224 404 L214 410" fill="none" stroke="${M}" stroke-width="3"/>`,
+  lab(160,292,250,["Braccio teso, va e torna","come un pendolo"],true), lab(252,240,170,["Palla nella mano sinistra,","all'altezza della vita"]), lab(225,376,336,["Il peso passa dal piede","dietro a quello davanti"])]),432),
+alto: svg(fig([ground(), pl("170,240 205,305 225,376"), pl("170,240 150,310 128,376"), line(214,380,244,380), line(114,380,142,380), line(170,240,180,150), pl("180,150 140,132 146,84",T,10), line(180,150,236,90), head(174,120), ball(230,40),
+  lab(230,40,40,["Lancio basso, davanti alla","spalla, senza rotazione"],true), lab(140,132,130,["Gomito alto, mano","vicino all'orecchio"]), lab(146,86,210,["Colpo secco al centro","della palla, polso fermo"]), lab(225,376,330,["Nel colpo il peso","va sul piede avanti"])])),
+attacco: svg(fig([`<line x1="30" y1="36" x2="330" y2="36" stroke="${W}" stroke-width="6" stroke-dasharray="14 8"/>`, `<text x="40" y="24" font-family="Saira Condensed, Arial Narrow, sans-serif" font-size="20" fill="${M}" letter-spacing="2">RETE</text>`,
+  `<path d="M70 372 L120 300 L196 196 L212 120" fill="none" stroke="${M}" stroke-width="2.5" stroke-dasharray="6 8"/>`,
+  `<ellipse cx="120" cy="300" rx="13" ry="24" transform="rotate(35 120 300)" fill="none" stroke="${W}" stroke-width="5"/>`, `<text x="88" y="296" font-family="Saira Condensed, sans-serif" font-weight="800" font-size="30" fill="${B}">1</text>`,
+  `<ellipse cx="196" cy="200" rx="13" ry="26" transform="rotate(35 196 200)" fill="none" stroke="${W}" stroke-width="5"/>`, `<text x="216" y="214" font-family="Saira Condensed, sans-serif" font-weight="800" font-size="30" fill="${B}">2</text>`,
+  `<ellipse cx="168" cy="178" rx="13" ry="24" transform="rotate(35 168 178)" fill="${T}" fill-opacity=".35" stroke="${T}" stroke-width="5"/>`, `<text x="132" y="172" font-family="Saira Condensed, sans-serif" font-weight="800" font-size="30" fill="${B}">3</text>`,
+  `<circle cx="204" cy="112" r="10" fill="${B}"/><path d="M196 196 L204 124" stroke="${B}" stroke-width="3"/>`,
+  lab(120,300,300,["1 sinistro: corto,","di direzione"]), lab(196,200,214,["2 destro: lungo e veloce,","braccia indietro"],true), lab(168,178,128,["3 sinistro: chiude accanto","al destro, stacco a due piedi"]), lab(70,372,380,["Partenza larga, a 3-4 m","dalla rete (destri)"])]),420),
+muro: svg(fig([ground(), `<line x1="300" y1="106" x2="300" y2="204" stroke="${W}" stroke-width="4"/><line x1="300" y1="204" x2="300" y2="386" stroke="${G}" stroke-width="4"/><rect x="292" y="100" width="16" height="10" fill="${W}"/>`,
+  pl("238,214 254,268 246,330"), pl("238,214 226,272 222,332"), line(234,334,260,334), line(208,336,234,336), line(238,214,252,132), line(252,132,318,62), line(306,70,330,54,T,10), head(226,104),
+  `<text x="306" y="226" font-family="Saira Condensed, sans-serif" font-size="18" fill="${M}">rete</text>`,
+  lab(322,58,50,["Mani oltre la rete:","dita aperte e tese"],true), lab(284,98,150,["Braccia dritte e vicine","alla rete, senza","caricarle indietro"]), lab(246,334,320,["Piedi paralleli alla rete,","salto a due piedi"])])),
+difesa: svg(fig([ground(), pl("165,268 135,322 105,376"), pl("165,268 222,312 242,376"), line(90,380,118,380), line(232,380,262,380), line(165,268,225,202), line(225,202,288,262), line(262,238,288,262,T,10), head(246,176),
+  lab(200,232,172,["Busto avanti,","peso sugli avampiedi"]), lab(278,252,250,["Braccia avanti,","staccate dal corpo"],true), lab(140,318,320,["Molto bassi:","ginocchia piegate"]), lab(250,380,376,["Fermi al momento del colpo"])]))
+};
+
+const SCHEDE=[
+{id:"bagher",name:"Bagher",intro:"È il tocco per ricevere la battuta, difendere gli attacchi e giocare le palle basse. Si colpisce con gli avambracci, che formano un piano unico.",sec:[
+["Posizione di partenza",["Piedi: un po' più larghi delle spalle, uno leggermente più avanti dell'altro, peso sulla parte anteriore del piede. Perché: si parte più veloci in ogni direzione.","Gambe: ginocchia piegate, bassi. Perché: le palle arrivano spesso basse, ed è più facile alzarsi che abbassarsi all'ultimo.","Busto e spalle: busto inclinato in avanti, spalle sopra le ginocchia. Perché: il peso va verso la palla e verso il bersaglio, non all'indietro.","Braccia: avanti e rilassate, pronte a unirsi. Si uniscono solo quando si è arrivati sulla palla. Perché: con le mani già unite si corre male."]],
+["Mani e braccia al momento del colpo",["Mani: una appoggiata nell'altra, pollici affiancati e paralleli, puntati verso il basso. Perché: le braccia restano unite e sulla stessa altezza.","Braccia: tese, gomiti distesi e girati verso l'interno, così gli avambracci formano un piano largo e piatto. Perché: su un piano piatto la palla rimbalza in modo prevedibile. Se un braccio è più alto, la palla va storta.","Punto di contatto: sugli avambracci, poco sopra i polsi. Mai sulle mani né sui polsi. Perché: è la parte più larga e piatta."]],
+["Il movimento",["Si arriva sulla palla prima che arrivi: ci si sposta con passi brevi e ci si ferma, con la palla davanti al centro del corpo. Perché: colpire mentre si corre rende il tocco impreciso.","Le braccia restano quasi ferme: la spinta arriva dalle gambe, che si distendono un po' verso il bersaglio. Perché: le gambe danno una forza dosata, le braccia che \"sbattono\" la mandano dove vogliono.","Si orienta il piano verso il bersaglio con le spalle: per mandare la palla a destra si abbassa la spalla sinistra, e viceversa. Perché: è l'inclinazione del piano a decidere la direzione.","Si guarda la palla fino al contatto, poi si accompagna verso il bersaglio.","Se la palla arriva di lato e non si fa in tempo a mettersi di fronte, si abbassa la spalla dal lato della palla, così il piano resta rivolto verso il bersaglio."]],
+["Errori tipici",["Gomiti piegati: il piano non c'è più e la palla parte storta.","Colpire con mani o polsi: la palla rimbalza a caso e spesso indietro.","Braccia che salgono sopra le spalle (\"colpo di mazza\"): la palla va lunga e alta, fuori controllo.","Gambe tese e busto dritto: si arriva sulle palle basse solo con le braccia.","Arrivare in ritardo e colpire correndo: tocco impreciso.","Mani staccate: la palla prende un solo braccio e schizza di lato."]]]},
+{id:"palleggio",name:"Palleggio",intro:"È il tocco per alzare, il fondamentale del palleggiatore. Si usa anche per ricevere le palle alte e facili. Si colpisce con le dita, sopra la fronte.",sec:[
+["Posizione di partenza",["Piedi: alla larghezza delle spalle, uno leggermente avanti. Perché: si sta in equilibrio e si può spingere in avanti.","Gambe: ginocchia leggermente piegate, pronte a spingere.","Busto: dritto, rivolto verso dove deve andare la palla. Perché: la palla parte nella direzione in cui guarda il corpo.","Mani: si alzano presto, sopra e davanti alla fronte, prima che arrivi la palla. Perché: alzarle all'ultimo fa toccare la palla bassa e storta."]],
+["Mani al momento del colpo",["Le mani formano una coppa, come se tenessero un pallone: dita aperte e rilassate, pollici e indici che formano un triangolo da cui si guarda la palla. Perché: più dita toccano la palla, più il tocco è morbido e preciso.","Pollici rivolti verso gli occhi, non in avanti. Perché: un pollice in avanti prende la palla di punta, la devia e fa male.","Gomiti larghi, in fuori. Perché: le mani restano aperte e le braccia possono spingere.","Contatto con i polpastrelli e le prime falangi, mai con i palmi. Perché: con i palmi la palla si ferma ed è \"trattenuta\", cioè fallo.","Le due mani toccano la palla insieme. Se parte prima da una e poi dall'altra è una \"doppia\": in alzata è fallo."]],
+["Il movimento",["Si arriva sotto la palla prima che arrivi e ci si ferma, con la palla sopra la fronte. Perché: colpirla di lato o in corsa la manda storta.","La spinta parte dalle gambe, passa nelle braccia che si distendono e finisce nei polsi e nelle dita, tutto in un unico movimento. Perché: le sole braccia non danno né forza né controllo.","Si accompagna la palla: alla fine le braccia sono distese verso il bersaglio.","Alzata dietro: la palla va un po' più sopra la testa, la schiena si inarca e le mani spingono verso l'alto e indietro."]],
+["Errori tipici",["Mani basse, davanti al viso o al petto: la palla parte bassa e la si trattiene.","Palmi sulla palla: palla trattenuta, fallo.","Pollici in avanti e gomiti chiusi: la palla scivola tra le mani.","Palla di lato al corpo: l'alzata va storta.","Solo braccia, senza gambe: l'alzata è corta.","Dita rigide: la palla rimbalza invece di essere accompagnata."]]]},
+{id:"basso",name:"Battuta dal basso",intro:"È la battuta più sicura per chi inizia: poco potente, ma entra quasi sempre. All'inizio conta di più una battuta che entra di una forte che finisce in rete. Scritta per chi colpisce con la destra: per i mancini è tutto a specchio.",sec:[
+["Posizione di partenza",["Dietro la linea di fondo, senza toccarla, con il corpo rivolto verso dove vuoi mandare la palla.","Piedi: il sinistro avanti, il destro dietro, alla larghezza delle spalle. Perché: si sposta il peso in avanti nella direzione della battuta.","Gambe e busto: ginocchia leggermente piegate, busto un po' in avanti, peso sul piede dietro.","Palla: nella mano sinistra, a braccio quasi teso, davanti al fianco destro, all'altezza della vita. Perché: così è già sulla traiettoria del braccio che colpisce.","Mano che colpisce: pugno chiuso, si colpisce con la parte piatta (lato del palmo), oppure mano aperta e rigida, colpendo con la base del palmo."]],
+["Il movimento",["Il braccio destro, teso, va indietro e torna avanti come un pendolo. Perché: è un movimento semplice da ripetere sempre uguale, e la precisione nasce da lì.","Mentre il braccio torna avanti, il peso passa dal piede dietro al piede davanti. Perché: la forza viene dal corpo che avanza, non dal braccio che spinge.","Appena prima del colpo la mano sinistra lascia la palla, o la alza appena. Per regola la palla va lanciata o lasciata dalla mano prima di colpirla: non si può colpirla mentre è ancora appoggiata.","Si colpisce la palla un po' sotto il centro. Perché: così sale quanto basta per superare la rete.","Si guarda la palla fino al contatto, poi si accompagna: il braccio finisce in avanti, verso il bersaglio, all'altezza delle spalle.","Dopo il colpo si entra subito in campo nel proprio posto."]],
+["Errori tipici",["Colpire troppo sotto: la palla va alta e corta, facile da ricevere.","Colpire al centro o sopra: la palla va in rete.","Braccio piegato: ogni battuta esce diversa.","Lanciare la palla in alto: è più difficile colpirla bene. Basta lasciarla o alzarla di poco.","Restare con il peso dietro: la palla non arriva.","Pestare la linea di fondo al momento del colpo: fallo."]]]},
+{id:"alto",name:"Battuta dall'alto",intro:"È più tesa e più veloce di quella dal basso. Si chiama flottante perché la palla viaggia senza ruotare e negli ultimi metri oscilla in modo imprevedibile: è difficile da ricevere anche se non è potentissima. Scritta per chi colpisce con la destra.",sec:[
+["Posizione di partenza",["Dietro la linea di fondo: piede sinistro avanti, destro dietro, peso sul piede dietro. Spalle e busto rivolti verso dove vuoi mandare la palla.","Palla: nella mano sinistra, o in tutte e due, davanti alla spalla destra, all'altezza del viso.","Braccio che colpisce: già alzato, gomito alto almeno quanto la spalla, mano aperta vicino all'orecchio. Perché: partendo già in alto il movimento è più corto e più preciso."]],
+["Il lancio",["Basso e preciso: davanti alla spalla destra, un po' in avanti, quanto basta per colpire con il braccio quasi teso (una trentina di centimetri sopra la mano tesa). Perché: il lancio è metà della battuta. Se è storto, la battuta esce storta.","La palla sale senza ruotare: si spinge con il palmo, senza far girare le dita.","Se il lancio è sbagliato meglio lasciarla cadere e ripartire, rispettando sempre gli 8 secondi dal fischio."]],
+["Il colpo",["Il braccio si distende in avanti e in alto e colpisce la palla davanti alla spalla destra, nel punto più alto che si raggiunge.","Mano aperta e rigida, polso fermo: si colpisce con la base del palmo, al centro della palla, da dietro. Perché: un colpo secco e al centro non dà rotazione, ed è questo che fa \"flottare\" la palla.","Colpo breve: la mano si ferma subito dopo il contatto, senza la frustata del polso. Perché: con la frustata la palla ruota, cade prima e non flotta più.","Durante il colpo il peso passa sul piede avanti, anche con un piccolo passo. Perché: la forza arriva dal corpo, il braccio la trasmette.","Dopo il colpo si entra subito in campo nel proprio posto."]],
+["Errori tipici",["Lancio troppo alto, dietro la testa o troppo a sinistra: si colpisce in ritardo o di lato.","Gomito basso: il braccio gira di lato e la palla va dove vuole.","Polso molle o frustata: la palla ruota e cade, oppure va in rete.","Colpire sotto il centro: la palla va lunga, fuori. Colpire sopra: in rete.","Colpire con le dita invece che con il palmo: tocco debole e impreciso.","Pensare alla forza prima che alla precisione: prima deve entrare, poi si spinge di più."]]]},
+{id:"attacco",name:"Rincorsa e attacco",intro:"L'attacco è il colpo che chiude l'azione. Una buona rincorsa trasforma la corsa in salto e porta l'attaccante a colpire la palla in alto e davanti a sé. Scritta per chi attacca con la destra: per i mancini i passi sono a specchio (destro, sinistro, destro).",sec:[
+["Partenza",["Si parte larghi e lontani dalla rete, a circa 3 o 4 metri, vicino alla linea laterale (in zona 4 anche un passo fuori dal campo). Perché: servono spazio per i passi e un angolo per attaccare verso il centro del campo.","Si parte quando la palla esce dalle mani del palleggiatore e si vede dove va. Perché: partire prima fa arrivare sotto la palla o nel posto sbagliato."]],
+["I tre passi",["Primo passo, sinistro: corto, serve a prendere la direzione verso la palla.","Secondo passo, destro: lungo e veloce, il più importante. Le braccia vanno indietro, tese. Perché: è il passo che dà velocità, e le braccia indietro si caricano per il salto.","Terzo passo, sinistro: chiude rapido accanto al destro, i piedi quasi paralleli e appoggiati di tallone. Perché: frena la corsa e la trasforma in salto verso l'alto, non in avanti."]],
+["Lo stacco e il volo",["Stacco a due piedi, ginocchia piegate, mentre le braccia salgono insieme in avanti e in alto con forza. Perché: le braccia danno una buona parte della spinta del salto.","In volo il braccio destro va indietro con il gomito alto e la mano vicino all'orecchio, il sinistro punta in alto verso la palla. Perché: il braccio sinistro aiuta a prendere la mira e a tenere le spalle in equilibrio."]],
+["Il colpo",["Si colpisce la palla davanti alla spalla destra, nel punto più alto, con il braccio disteso. Perché: con la palla davanti si vede il campo e si può colpire verso il basso.","Mano aperta e rigida, che avvolge la palla, con un colpo di polso in avanti alla fine. Perché: il colpo di polso dà rotazione in avanti e fa scendere la palla dentro il campo.","Si atterra su due piedi, ginocchia piegate, senza toccare la rete e senza superare del tutto con il piede la linea centrale."]],
+["Errori tipici",["Partire prima dell'alzata: si arriva sotto la palla o nel posto sbagliato.","Partire troppo vicino alla rete: non c'è spazio per i passi e si salta addosso alla rete.","Stacco su un piede solo: salto basso e corpo storto.","Palla sopra o dietro la testa: si colpisce in ritardo e la palla va lunga.","Braccio piegato al colpo: si colpisce più in basso e si finisce sul muro.","Atterrare addosso alla rete o oltre la linea centrale: fallo."]]]},
+{id:"muro",name:"Muro",intro:"Il muro è il primo tentativo di fermare l'attacco avversario: o lo blocca, o lo rallenta e chiude una parte del campo ai colpi. Possono murare solo i tre giocatori di prima linea.",sec:[
+["Posizione di attesa",["A rete, a circa un avambraccio di distanza, piedi paralleli alla rete alla larghezza delle spalle, ginocchia leggermente piegate. Perché: da lì si salta subito senza toccare la rete.","Mani alzate davanti alle spalle, palmi verso la rete. Perché: le braccia sono già sulla strada per salire sopra la rete."]],
+["Gli spostamenti",["Per spostarsi di poco: passi laterali accostati, sempre di fronte alla rete.","Per spostarsi di molto (ad esempio il centrale che va in banda): passo incrociato, poi l'ultimo passo riporta i piedi paralleli alla rete. Perché: saltare girati fa girare anche il muro, e la palla passa di lato."]],
+["Salto e mani",["Si salta a due piedi, con le braccia che salgono dritte vicino alla rete, senza caricarle indietro. Perché: le braccia lontane dalla rete lasciano spazio per far passare la palla tra mani e rete.","Mani sopra e oltre la rete, dita aperte e tese, pollici vicini tra loro, polsi fermi. Perché: più superficie per toccare la palla e niente buchi tra le dita.","Si possono passare le mani oltre la rete, ma senza toccare la palla prima del colpo dell'attaccante avversario.","Il murante vicino all'asta gira la mano esterna verso il campo avversario. Perché: la palla toccata ricade dentro invece di uscire (mani e fuori).","Si guarda l'attaccante e il suo braccio, non la palla. Perché: è il braccio che dice dove andrà il colpo."]],
+["Il tempo",["Sulla palla alta in banda si salta dopo l'attaccante, perché lui salta prima.","Sul primo tempo si salta quasi insieme all'attaccante, perché la palla parte subito.","Dopo il muro si atterra su due piedi e ci si gira subito verso il proprio campo, pronti a giocare la palla."]],
+["Errori tipici",["Toccare la rete tra le aste durante l'azione: fallo.","Saltare girati o in corsa: il muro si sposta di lato e lascia passare la palla.","Braccia lontane dalla rete: la palla passa tra mani e rete.","Dita chiuse o molli: la palla sfonda le mani.","Saltare troppo presto sulla palla alta: si scende mentre l'attaccante colpisce.","Chiudere gli occhi o girare la testa: non si vede il colpo."]]]},
+{id:"difesa",name:"Difesa",intro:"La difesa è il bagher (o il tocco) sugli attacchi avversari. Conta più la posizione che il riflesso: chi è fermo, basso e nel posto giusto prende palle che sembrano impossibili.",sec:[
+["Posizione di attesa",["Piedi più larghi delle spalle, peso in avanti sugli avampiedi, ginocchia molto piegate, busto in avanti. Perché: gli attacchi arrivano veloci e bassi, e da lì si parte in ogni direzione.","Braccia avanti e staccate dal corpo, mani davanti alle ginocchia. Perché: sono già pronte a formare il piano del bagher.","Al momento del colpo dell'attaccante si è fermi, con un piccolo assestamento sui piedi. Perché: chi si sta ancora muovendo difende male."]],
+["Leggere l'attacco",["Si guardano la rincorsa, le spalle e il braccio dell'attaccante. Perché: dicono in che direzione partirà il colpo prima che parta.","Si sta fuori dall'ombra del muro, nella zona che il proprio ruolo deve coprire (lo vedi in \"Il perché\", fase Muro e difesa)."]],
+["Il tocco",["Sulla palla forte le braccia non spingono: restano ferme e ammortizzano. Perché: la palla ha già tanta velocità, se la spingi va fuori.","La palla va mandata alta e verso il centro del campo. Perché: una palla alta è sempre rigiocabile, anche se non arriva precisa al palleggiatore.","Sulla palla lontana si fa un passo lungo e si abbassa la spalla dal lato della palla, così il piano resta rivolto verso il centro del campo.","Sulla palla alta e forte sopra la testa si può difendere con le mani aperte, rigide, sopra la fronte."]],
+["Errori tipici",["Stare in piedi: sulle palle basse non si arriva.","Muoversi mentre l'attaccante colpisce: si va dalla parte sbagliata.","Spingere con le braccia sulla palla forte: la palla vola fuori.","Guardare solo la palla e non l'attaccante: si parte in ritardo.","Mettersi nell'ombra del muro: lì la palla difficilmente arriva.","Mandare la palla bassa e veloce verso la rete: nessuno riesce a rigiocarla."]]]}
+];
+
+let cur=0;
+const m=(location.hash||"").replace("#","");
+const fi=SCHEDE.findIndex(s=>s.id===m); if(fi>=0) cur=fi;
+const chips=document.getElementById("chips"), out=document.getElementById("out");
+SCHEDE.forEach((s,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=s.name; b.addEventListener("click",()=>{ cur=i; render(true); }); chips.appendChild(b); });
+function render(scroll){
+  const s=SCHEDE[cur];
+  [...chips.children].forEach((b,i)=>b.setAttribute("aria-pressed",i===cur));
+  let h=`<div style="display:flex;flex-direction:column;gap:12px"><h2>${s.name}</h2><p class="intro">${s.intro}</p><div class="draw" role="img" aria-label="Disegno: ${s.name}">${DRAW[s.id]}</div>`;
+  for(const [t,items] of s.sec) h+=`<div class="card"><h3>${t}</h3><ul class="pts">${items.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+  h+=`</div>`;
+  out.innerHTML=h;
+  document.getElementById("prev").disabled=cur===0;
+  const n=document.getElementById("next"); n.disabled=cur===SCHEDE.length-1;
+  try{ history.replaceState(null,"","#"+s.id); }catch(e){}
+  if(scroll) chips.scrollIntoView({block:"start",behavior:"smooth"});
+}
+document.getElementById("prev").addEventListener("click",()=>{ if(cur>0){ cur--; render(true); } });
+document.getElementById("next").addEventListener("click",()=>{ if(cur<SCHEDE.length-1){ cur++; render(true); } });
+render(false);
+})();
+</script>
+</body>
+</html>
