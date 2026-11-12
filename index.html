@@ -25,15 +25,21 @@ h1{font-family:var(--display);font-weight:800;font-size:46px;line-height:.95;mar
 h1 span{color:var(--ball)}
 p{margin:0}
 .sub{color:var(--muted)}
-.list{display:flex;flex-direction:column;gap:18px}
+.list{display:flex;flex-direction:column;gap:12px}
 .group{display:flex;flex-direction:column;gap:10px}
-.glabel{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:2px;text-transform:uppercase;color:#f3e7b8;opacity:.85;margin:4px 0 -2px 2px}
+.glabel{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:2px;text-transform:uppercase;color:#f5d3b3;opacity:.9;margin:4px 0 -2px 2px}
+.glabel.gy{color:#f3e7b8}
+.glabel.gb{color:#9fd6ff}
+a.item .ico{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:rgba(226,132,63,.18);display:flex;align-items:center;justify-content:center}
+a.item.blue{border-left-color:#38aaf0}
+a.item.blue .ico{background:rgba(56,170,240,.18)}
+a.item.blue .go{color:#5cc0ff}
 a.item{display:flex;gap:14px;align-items:center;text-decoration:none;color:var(--text);background:rgba(24,51,91,.82);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);box-shadow:0 8px 25px rgba(0,0,0,.18);border:1px solid rgba(115,155,215,.25);border-left:6px solid var(--court);border-radius:12px;padding:14px 16px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 a.item .go{transition:transform .18s ease}
 a.item:hover,a.item:focus-visible,a.item:active{transform:translateY(-3px);border-color:var(--ball);box-shadow:0 12px 30px rgba(0,0,0,.25),0 0 18px rgba(255,210,63,.22);outline:none}
 a.item:hover .go,a.item:focus-visible .go,a.item:active .go{transform:translateX(4px)}
 a.item.star{background:rgba(44,74,120,.9);border-color:rgba(255,210,63,.55);border-left-color:var(--ball);padding:16px 16px}
-a.item.star .ico{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:rgba(255,210,63,.14);display:flex;align-items:center;justify-content:center}
+a.item.star .ico{background:rgba(255,210,63,.14)}
 a.item.star b{color:var(--ball)}
 @media (prefers-reduced-motion:reduce){a.item,a.item .go{transition:none}a.item:hover,a.item:focus-visible,a.item:active{transform:none}a.item:hover .go,a.item:focus-visible .go,a.item:active .go{transform:none}}
 a.item b{display:block;font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.4px}
@@ -63,7 +69,7 @@ body{position:relative}
   <p class="sub">Dalla lavagna al campo.</p>
   <div class="list">
     <div class="group">
-      <p class="glabel">Strumenti</p>
+      <p class="glabel gy">Strumenti</p>
       <a class="item star" href="lavagna/">
         <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="28" height="28"><rect x="3" y="5" width="26" height="19" rx="3" fill="none" stroke="#ffd23f" stroke-width="2.4"/><path d="M8 19 Q13 10 20 13" fill="none" stroke="#eef2f8" stroke-width="2.2" stroke-dasharray="3 2.5" stroke-linecap="round"/><path d="M18.5 10.5 L21.5 13.3 L17.6 14.6" fill="none" stroke="#eef2f8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="17.5" r="2.6" fill="#ffd23f"/><path d="M12 24 L10 29 M20 24 L22 29" stroke="#ffd23f" stroke-width="2.4" stroke-linecap="round"/></svg></span>
         <div><b>La lavagna</b><small>Prepara un'azione a passaggi, riproducila e mandala al gruppo.</small></div>
@@ -71,12 +77,22 @@ body{position:relative}
       </a>
     </div>
     <div class="group">
+      <p class="glabel gb">Scopri</p>
+      <a class="item blue" href="scopri/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#5cc0ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 4 7.5M12 12l7.6 4.6M12 12l-8.7 1.8M12 12c-1.5-3-1.4-6.3 0-9M12 12c3.3.4 6 2.3 7.6 4.6M12 12c-1.7 2.9-4.6 4.8-8 5"/></svg></span>
+        <div><b>Scopri il volley</b><small>Ruoli, regole e parole del gioco.</small></div>
+        <span class="go" aria-hidden="true">›</span>
+      </a>
+    </div>
+    <div class="group">
       <p class="glabel">Impara</p>
       <a class="item" href="il-perche/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#f0a060" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg></span>
         <div><b>Il perché</b><small>Cosa fa ogni giocatore in ogni fase, e perché.</small></div>
         <span class="go" aria-hidden="true">›</span>
       </a>
       <a class="item" href="tecnica/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#f0a060" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c3-1.2 6-1.2 9 .8 3-2 6-2 9-.8V19c-3-1.2-6-1.2-9 .8-3-2-6-2-9-.8z"/><path d="M12 6.3v13.5"/></svg></span>
         <div><b>La tecnica</b><small>I fondamentali: posizione, movimento ed errori.</small></div>
         <span class="go" aria-hidden="true">›</span>
       </a>
@@ -84,10 +100,12 @@ body{position:relative}
     <div class="group">
       <p class="glabel">Allenati</p>
       <a class="item" href="rotazioni-in-campo/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#f0a060" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="2.3"/><circle cx="6" cy="13" r="2.1"/><circle cx="18" cy="13" r="2.1"/><path d="M8.5 11.5c.8-1.6 2-2.4 3.5-2.4s2.7.8 3.5 2.4M2.5 20c.6-2.4 2-3.6 3.5-3.6S8.9 17.6 9.5 20M14.5 20c.6-2.4 2-3.6 3.5-3.6s2.9 1.2 3.5 3.6"/></svg></span>
         <div><b>Rotazioni in campo</b><small>Impara il 5-1 con simulazioni, errori da trovare e quiz.</small></div>
         <span class="go" aria-hidden="true">›</span>
       </a>
       <a class="item" href="muro-e-difesa/">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#f0a060" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 11.5l2.2 2.2L15.5 9.5"/></svg></span>
         <div><b>Muro e difesa</b><small>Muro e posizioni di difesa contro l'attacco avversario.</small></div>
         <span class="go" aria-hidden="true">›</span>
       </a>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scopri il volley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0f1d33;
+  --panel:#172a4b;
+  --line:#2a4069;
+  --text:#eef2f8;
+  --muted:#a3b3cf;
+  --court:#e2843f;
+  --freezone:#2563a8;
+  --ball:#ffd23f;
+  --libero:#2ec4b6;
+  --good:#4cc38a;
+  --bad:#ff6b6b;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--night);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-direction:column;gap:2px}
+a.home{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.5px;color:var(--night);background:var(--ball);text-decoration:none;border-radius:10px;padding:8px 14px 7px 12px;margin-bottom:10px;line-height:1}
+a.home:hover{filter:brightness(1.06)}
+a.home:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:.5px;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--ball)}
+.sub{color:var(--muted);font-size:15px;margin:0}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;position:sticky;top:0;z-index:5;background:var(--night);padding:8px 0}
+nav a{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;text-align:center;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 4px;line-height:1.05}
+nav a[aria-current="page"]{color:var(--night);background:var(--ball);border-color:var(--ball)}
+nav a:focus-visible,button:focus-visible{outline:3px solid var(--libero);outline-offset:2px}
+section[hidden]{display:none}
+section{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;text-transform:uppercase;margin:0;line-height:1.05}
+.lead{margin:0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button{font-family:var(--body);font-size:15px;font-weight:700;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
+button.chip{padding:7px 12px;font-family:var(--display);font-size:17px;letter-spacing:.5px}
+button.chip[aria-pressed="true"]{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button.primary{background:var(--ball);color:var(--night);border-color:var(--ball)}
+button:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1 1 auto}
+.stage{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stage button{padding:9px 6px;font-size:14px;line-height:1.15}
+.stage button[aria-pressed="true"]{background:var(--libero);color:var(--night);border-color:var(--libero)}
+.courtbox{background:var(--freezone);border-radius:14px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+svg.court{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+svg.drag{touch-action:none}
+.tok{transition:transform .75s cubic-bezier(.45,.05,.25,1),opacity .5s}
+.tok.dragging{transition:none}
+.tok circle{stroke-width:6}
+.tok text{font-family:var(--display);font-weight:800;font-size:46px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.tok.hit circle{stroke:var(--bad);stroke-width:14}
+.tok.ok circle{stroke:var(--good);stroke-width:14}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card p{margin:0}
+.card .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ball);font-size:15px}
+.lines{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:15px}
+.lines b{font-family:var(--display);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:14px;text-align:center}
+.zonegrid div{background:var(--night);border-radius:8px;padding:5px 2px}
+.zonegrid small{display:block;color:var(--muted);font-size:12px}
+.zonegrid strong{font-family:var(--display);font-size:20px}
+.score{display:flex;justify-content:space-between;font-family:var(--display);font-size:20px;font-weight:700;text-transform:uppercase}
+.score span:last-child{color:var(--ball)}
+.feedback{border-left:5px solid var(--line)}
+.feedback.good{border-left-color:var(--good)}
+.feedback.bad{border-left-color:var(--bad)}
+.feedback .verdict{font-family:var(--display);font-size:22px;font-weight:800;text-transform:uppercase}
+.feedback.good .verdict{color:var(--good)}
+.feedback.bad .verdict{color:var(--bad)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;font-weight:400;padding:12px 14px}
+.opts button.right{border-color:var(--good);background:rgba(76,195,138,.18)}
+.opts button.wrong{border-color:var(--bad);background:rgba(255,107,107,.16)}
+.q{font-size:18px;font-weight:700;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.save{display:flex;gap:8px;flex-wrap:wrap}
+.save input{flex:1 1 160px;font:inherit;font-size:16px;color:var(--text);background:var(--night);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.save input:focus-visible{outline:3px solid var(--libero);outline-offset:1px}
+.board{width:100%;border-collapse:collapse;font-size:15px}
+.board th{font-family:var(--display);text-transform:uppercase;letter-spacing:.3px;color:var(--muted);text-align:left;font-weight:700;padding:4px 6px;border-bottom:1px solid var(--line)}
+.board td{padding:7px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.board td.n{text-align:right;font-family:var(--display);font-size:20px;font-weight:800;color:var(--ball)}
+.board tr:first-child td{font-weight:700}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-top:6px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.tok{transition:none}}
+</style>
+
+<style id="visual-restyling-only">
+:root{--night:#071a34;--panel:#112b4e;--line:#31547f;--text:#f4f7fc;--muted:#b8c8df;--ball:#ffd23f;--libero:#2ec4b6}
+html{min-height:100%;background:#071a34}
+body{min-height:100vh;background-color:#071a34;background-image:linear-gradient(90deg,rgba(4,18,38,.84),rgba(7,26,52,.59) 29%,rgba(7,26,52,.74) 52%,rgba(3,15,33,.79)),linear-gradient(180deg,rgba(6,22,45,.15),rgba(6,22,45,.58)),url("../volley-bg.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat;background-attachment:fixed}
+.wrap{position:relative;max-width:620px;min-height:100vh;padding:28px 22px 44px;background:linear-gradient(180deg,rgba(5,23,47,.70),rgba(8,29,57,.84));border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);box-shadow:0 0 55px rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header{padding:18px;border:1px solid rgba(129,171,230,.22);border-radius:18px;background:linear-gradient(135deg,rgba(22,53,94,.88),rgba(11,34,65,.72));box-shadow:0 14px 35px rgba(0,0,0,.22)}
+a.home{border-radius:999px;box-shadow:0 7px 20px rgba(255,210,63,.18);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}a.home:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(255,210,63,.25)}
+h1{font-size:clamp(38px,8vw,50px);text-shadow:0 3px 18px rgba(0,0,0,.28)}.sub{font-size:16px;color:#c5d3e8}
+nav{top:8px;padding:8px;border:1px solid rgba(129,171,230,.22);border-radius:16px;background:rgba(7,25,51,.88);box-shadow:0 12px 30px rgba(0,0,0,.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+nav a{border-radius:11px;background:rgba(29,63,108,.72);transition:transform .16s ease,background .16s ease,border-color .16s ease}nav a:hover{transform:translateY(-1px);background:rgba(39,81,137,.9);color:#fff}nav a[aria-current="page"]{box-shadow:0 6px 18px rgba(255,210,63,.18)}
+section:not([hidden]){padding:18px;border:1px solid rgba(129,171,230,.20);border-radius:18px;background:linear-gradient(180deg,rgba(11,34,65,.84),rgba(8,28,55,.91));box-shadow:0 16px 40px rgba(0,0,0,.25)}
+h2{font-size:30px;color:#fff}
+button{background:linear-gradient(180deg,rgba(33,70,118,.97),rgba(22,51,91,.97));box-shadow:0 6px 15px rgba(0,0,0,.14);transition:transform .16s ease,filter .16s ease,border-color .16s ease}button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);border-color:rgba(255,255,255,.3)}button:active:not(:disabled){transform:translateY(0)}
+button.primary,button.chip[aria-pressed="true"]{background:linear-gradient(180deg,#ffe06a,#ffc928);box-shadow:0 7px 18px rgba(255,210,63,.2)}.stage button[aria-pressed="true"]{background:linear-gradient(180deg,#45d8c8,#28afaa);box-shadow:0 7px 18px rgba(46,196,182,.18)}
+.card{background:linear-gradient(135deg,rgba(28,61,104,.9),rgba(18,44,79,.85));border-color:rgba(134,177,235,.27);border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.16);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.courtbox{padding:8px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:linear-gradient(145deg,rgba(41,108,173,.94),rgba(22,72,131,.96));box-shadow:0 18px 38px rgba(0,0,0,.33),inset 0 1px 0 rgba(255,255,255,.14);overflow:hidden}
+.save input{background:rgba(4,20,42,.72);border-color:rgba(132,174,232,.28)}footer{padding:14px 8px 0;border-top-color:rgba(129,171,230,.22);color:#b9c8de}
+@media(max-width:700px){body{background-position:36% top;background-attachment:scroll}.wrap{max-width:none;padding:12px 10px 30px;border:0;background:linear-gradient(180deg,rgba(5,22,45,.87),rgba(7,27,53,.94));backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}header,section:not([hidden]){padding:14px;border-radius:15px}nav{top:4px;gap:4px;padding:6px}nav a{font-size:13px;padding:9px 2px}h1{font-size:39px}h2{font-size:27px}}
+@media(max-width:420px){nav{grid-template-columns:repeat(5,minmax(0,1fr))}nav a{font-size:12px;letter-spacing:0}.lines{grid-template-columns:1fr;gap:1px}.lines span{margin-bottom:7px}}
+@media(prefers-reduced-motion:reduce){a.home,nav a,button{transition:none}}
+</style>
+
+<style>
+.ctrl{display:flex;flex-direction:column;gap:8px}
+.ctrl .k{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-size:14px;margin:0}
+[hidden]{display:none !important}
+.tok{cursor:default}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tabs a{font-family:var(--display);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.4px;text-align:center;text-decoration:none;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 4px}
+.tabs a[aria-current="page"]{color:#071a34;background:#5cc0ff;border-color:#5cc0ff}
+.tag{color:#9fd6ff;font-size:17px;margin:0}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.rgrid button{text-align:left;display:flex;flex-direction:column;gap:3px;padding:12px}
+.rgrid button b{font-family:var(--display);font-size:19px;text-transform:uppercase;letter-spacing:.3px}
+.rgrid button span{font-weight:400;font-size:13px;color:var(--muted)}
+.rgrid button[aria-pressed="true"]{border-color:#5cc0ff;box-shadow:0 0 0 2px rgba(92,192,255,.35)}
+details.qa{border-top:1px solid var(--line);padding:10px 0}
+details.qa:first-of-type{border-top:0}
+details.qa summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.qa summary::-webkit-details-marker{display:none}
+details.qa summary::after{content:"+";color:#5cc0ff;font-family:var(--display);font-size:22px;line-height:1}
+details.qa[open] summary::after{content:"\2212"}
+details.qa p{margin:8px 0 0}
+.scheme{background:rgba(4,20,42,.55);border:1px solid rgba(132,174,232,.22);border-radius:12px;padding:8px;margin-top:8px}
+.scheme svg{display:block;width:100%;height:auto;max-height:420px}
+.search{font:inherit;font-size:16px;color:var(--text);background:rgba(4,20,42,.72);border:1px solid rgba(132,174,232,.28);border-radius:10px;padding:11px 14px;width:100%}
+.search:focus-visible{outline:3px solid #5cc0ff;outline-offset:1px}
+#vChips button.chip{font-size:15px;padding:6px 11px}
+.links a,.links button{font:inherit;font-size:14px;font-weight:700;color:#9fd6ff;background:transparent;text-decoration:none;border:1px solid rgba(92,192,255,.4);border-radius:999px;padding:6px 12px;cursor:pointer}
+
+.tok.near circle{stroke:var(--libero);stroke-width:14}
+.tok.far circle{stroke:#8aa0c2;stroke-width:14;stroke-dasharray:14 10}
+.tok.att circle{stroke:var(--ball);stroke-width:14}
+.tok.ghost{opacity:.35}
+.tok.off{opacity:0;pointer-events:none}
+.tok.sel circle{stroke:#ffffff;stroke-width:16;stroke-dasharray:none}
+.tok.opp{cursor:default}
+ul.pr{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.why{color:var(--text)}
+.why b{color:var(--ball);font-family:var(--display);text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+#who .k{margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="https://neoramses14031984.github.io/lavagna-volley/" aria-label="Torna alla home di Lavagna Volley"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>Home</a>
+    <h1>Scopri <span>il volley</span></h1>
+    <p class="sub">Ruoli, regole e parole del gioco.</p>
+  </header>
+  <nav class="tabs" aria-label="Sezioni">
+    <a href="#ruoli" data-v="ruoli">I ruoli</a>
+    <a href="#regole" data-v="regole">Le regole</a>
+    <a href="#vocabolario" data-v="vocabolario">Il vocabolario</a>
+  </nav>
+
+  <section id="v-ruoli" aria-labelledby="t-ruoli">
+    <h2 id="t-ruoli">I ruoli in campo</h2>
+    <div class="chips" id="roleChips" role="group" aria-label="Ruolo"></div>
+    <div class="card" id="roleCard"></div>
+    <div class="ctrl"><p class="k">Dove lo trovi?</p><div class="stage" id="stageBox" role="group" aria-label="Fase"></div></div>
+    <div class="ctrl"><p class="k">Rotazione</p><div class="chips" id="rotChips" role="group" aria-label="Rotazione"></div></div>
+    <div class="courtbox"><svg class="court" id="svg" viewBox="-70 -160 1040 1250" role="img" aria-label="Campo con il ruolo evidenziato"></svg></div>
+    <div class="card" id="where" aria-live="polite"></div>
+    <div class="legend"><span><i style="background:var(--ball)"></i>P palleggiatore</span><span><i style="background:#fff"></i>O opposto, S1 S2 schiacciatori, C1 C2 centrali</span><span><i style="background:var(--libero)"></i>L libero</span></div>
+  </section>
+
+  <section id="v-regole" aria-labelledby="t-regole" hidden>
+    <h2 id="t-regole">Le regole</h2>
+    <p class="lead">Dubbi durante una partita? Partiamo dalle situazioni reali.</p>
+    <div class="rgrid" id="regGrid"></div>
+    <div id="regOut" aria-live="polite"></div>
+  </section>
+
+  <section id="v-vocabolario" aria-labelledby="t-voc" hidden>
+    <h2 id="t-voc">Il vocabolario</h2>
+    <p class="lead">Le parole che senti in palestra e in partita.</p>
+    <input class="search" id="vq" type="search" placeholder="Cerca una parola..." aria-label="Cerca una parola" autocomplete="off">
+    <div class="chips" id="vChips"></div>
+    <div id="vOut" aria-live="polite"></div>
+  </section>
+
+  <footer>A cura di Agostino Cannavale</footer>
+</div>
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const START={1:"P",2:"S1",3:"C2",4:"O",5:"S2",6:"C1"};
+const SEQ=["P1","P6","P5","P4","P3","P2"];
+const toCm=([fx,fy])=>[fx*900/224,fy*6];
+function zonesOf(idx){ let z=Object.assign({},START); for(let i=0;i<idx;i++){ const n={}; for(const k in z){ const kk=+k; n[kk===1?6:kk-1]=z[k]; } z=n; } return z; }
+function liberoFor(z){ return [5,6,1].map(k=>z[k]).find(p=>p[0]==="C"); }
+function shownZones(idx){ const z=zonesOf(idx), c=liberoFor(z), s={}; for(const k in z){ s[k]=([5,6,1].includes(+k)&&z[k]===c)?"L":z[k]; } return s; }
+function zoneOf(idx,id){ const z=shownZones(idx); for(const k in z) if(z[k]===id) return +k; return null; }
+function defIds(idx){
+  const z=shownZones(idx), front=[4,3,2].map(k=>z[k]), back=[5,6,1].map(k=>z[k]);
+  const sf=front.find(p=>p[0]==="S"), cf=front.find(p=>p[0]==="C"), sb=back.find(p=>p[0]==="S");
+  const avanti=front.includes("P");
+  return {F4:sf,F3:cf,F2:avanti?"P":"O",B5:"L",B6:sb,B1:avanti?"O":"P"};
+}
+const SLOTS=["F4","F3","F2","B5","B6","B1"];
+const SLOTZONE={F4:4,F3:3,F2:2,B5:5,B6:6,B1:1};
+const WAIT={F4:[36,8],F3:[112,8],F2:[188,8],B5:[30,104],B6:[112,136],B1:[194,104]};
+const NAMES={P:"il palleggiatore",O:"l'opposto",S1:"lo schiacciatore S1",S2:"lo schiacciatore S2",C1:"il centrale C1",C2:"il centrale C2",L:"il libero"};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+const RECV={
+  P1:{O:[30,18],C2:[100,18],S1:[166,96],P:[206,122],L:[112,116],S2:[40,104]},
+  P6:{S2:[36,96],O:[106,16],C2:[192,18],P:[128,46],L:[96,116],S1:[184,108]},
+  P5:{C1:[36,14],P:[24,42],S2:[78,100],O:[192,18],S1:[124,116],L:[186,104]},
+  P4:{P:[14,12],C1:[30,30],S2:[48,98],S1:[112,110],L:[180,104],O:[208,132]},
+  P3:{P:[108,16],C1:[190,16],S1:[36,98],L:[90,116],O:[140,132],S2:[190,104]},
+  P2:{C2:[30,16],S1:[74,100],P:[160,16],O:[20,132],S2:[124,118],L:[186,106]}
+};
+const RECEIVERS={P1:["S2","L","S1"],P6:["S2","L","S1"],P5:["S2","S1","L"],P4:["S2","S1","L"],P3:["S1","L","S2"],P2:["S1","S2","L"]};
+const AT={left:[6,62],mid:[128,40],right:[218,60],pipe:[112,82],back1:[205,80],cover:[64,116],set:[152,20]};
+const ATTACK={
+  P1:{P:"set",O:"left",C2:"mid",S1:"right",S2:"pipe",L:"cover"},
+  P6:{P:"set",S2:"left",C2:"mid",O:"right",S1:"pipe",L:"cover"},
+  P5:{P:"set",S2:"left",C1:"mid",O:"right",S1:"pipe",L:"cover"},
+  P4:{P:"set",S2:"left",C1:"mid",O:"back1",S1:"pipe",L:"cover"},
+  P3:{P:"set",S1:"left",C1:"mid",O:"back1",S2:"pipe",L:"cover"},
+  P2:{P:"set",S1:"left",C2:"mid",O:"back1",S2:"pipe",L:"cover"}
+};
+const VIA={P2:{O:[200,136]}};
+const DEF={
+  "4":{F4:[44,50],F3:[160,7],F2:[190,7],B5:[24,96],B6:[100,138],B1:[206,92]},
+  "3":{F4:[56,10],F3:[112,7],F2:[168,10],B5:[32,94],B6:[112,138],B1:[192,94]},
+  "2":{F4:[34,7],F3:[64,7],F2:[180,50],B5:[18,92],B6:[124,138],B1:[200,96]}
+};
+const ATTPOS={"4":[196,-17],"3":[112,-17],"2":[28,-17]};
+const SHOTS={"4":[[212,128],[22,128],[56,46]],"3":[[40,124],[184,124],[112,132]],"2":[[12,128],[202,128],[168,46]]};
+
+
+function el(tag,attrs,parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+const svg=document.getElementById("svg");
+el("rect",{x:0,y:-150,width:900,height:124,fill:"var(--court)",opacity:".45"},svg);
+el("rect",{x:0,y:0,width:900,height:900,fill:"var(--court)"},svg);
+const zg=el("g",{"font-family":"Saira Condensed, sans-serif","font-weight":"800","font-size":"120",fill:"#000","fill-opacity":".09","text-anchor":"middle","dominant-baseline":"central"},svg);
+[[4,150,150],[3,450,150],[2,750,150],[5,150,600],[6,450,600],[1,750,600]].forEach(([n,x,y])=>{ el("text",{x,y},zg).textContent=n; });
+el("rect",{x:0,y:0,width:900,height:900,fill:"none",stroke:"#fff","stroke-width":10},svg);
+el("line",{x1:0,x2:900,y1:300,y2:300,stroke:"#fff","stroke-width":10},svg);
+el("rect",{x:-40,y:-26,width:980,height:26,fill:"#0b1426"},svg);
+el("line",{x1:-40,x2:940,y1:-26,y2:-26,stroke:"#fff","stroke-width":8},svg);
+el("line",{x1:0,x2:0,y1:-140,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+el("line",{x1:900,x2:900,y1:-140,y2:0,stroke:"#fff","stroke-width":8,"stroke-dasharray":"14 14"},svg);
+el("text",{x:890,y:340,"text-anchor":"end","font-family":"Atkinson Hyperlegible, sans-serif","font-size":"28",fill:"#fff","fill-opacity":".85"},svg).textContent="linea dei 3 m";
+el("text",{x:20,y:-118,"font-family":"Saira Condensed, sans-serif","font-weight":"700","font-size":"30",fill:"#fff","fill-opacity":".8","letter-spacing":"3"},svg).textContent="AVVERSARI";
+el("text",{x:20,y:1060,"font-family":"Saira Condensed, sans-serif","font-weight":"700","font-size":"30",fill:"#fff","fill-opacity":".7","letter-spacing":"3"},svg).textContent="ZONA DI SERVIZIO";
+el("line",{x1:0,x2:0,y1:900,y2:1080,stroke:"#fff","stroke-width":6,"stroke-dasharray":"14 14",opacity:".6"},svg);
+el("line",{x1:900,x2:900,y1:900,y2:1080,stroke:"#fff","stroke-width":6,"stroke-dasharray":"14 14",opacity:".6"},svg);
+const fx=el("g",{},svg);
+const layer=el("g",{},svg);
+const opp=el("g",{class:"tok opp off"},layer);
+el("circle",{r:46,fill:"var(--bad)",stroke:"#0b1426","stroke-width":6},opp);
+el("text",{x:0,y:2,fill:"#0b1426"},opp).textContent="A";
+const toks={};
+function tok(key,label,fill){
+  if(!toks[key]){
+    const g=el("g",{class:"tok off","data-k":key},layer);
+    el("circle",{r:54,fill:fill,stroke:"#0b1426"},g);
+    el("text",{x:0,y:2,fill:"#0b1426"},g);
+    toks[key]=g;
+  }
+  const g=toks[key]; g.querySelector("text").textContent=label; g.querySelector("circle").setAttribute("fill",fill);
+  return g;
+}
+function fillOf(id){ return id==="P"?"var(--ball)":id==="L"?"var(--libero)":"#fff"; }
+function place(g,x,y){ g.style.transform=`translate(${x}px, ${y}px)`; }
+
+
+function show(list){
+  const used=new Set(list.map(x=>x.key));
+  for(const k in toks){ if(!used.has(k)) toks[k].classList.add("off"); }
+  for(const x of list){
+    const g=tok(x.key,x.label,x.fill);
+    g.classList.remove("off","near","far","att","ghost");
+    if(x.cls) g.classList.add(x.cls);
+    place(g,x.pos[0],x.pos[1]);
+  }
+}
+function arrows(att){
+  fx.textContent="";
+  if(att==null) return;
+  const a=toCm(ATTPOS[att]);
+  for(const s of SHOTS[att]){ const b=toCm(s);
+    el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:"var(--bad)","stroke-width":6,"stroke-dasharray":"18 14","stroke-linecap":"round",opacity:".75"},fx);
+    el("circle",{cx:b[0],cy:b[1],r:12,fill:"var(--bad)",opacity:".75"},fx); }
+}
+
+const ROLES=[
+ {k:"P",name:"Palleggiatore",ids:["P"],tag:"Il regista della squadra.",does:["Organizza l'attacco: il secondo tocco è quasi sempre suo.","Sceglie a chi alzare, cercando l'attaccante con il muro avversario più debole.","Dopo ogni ricezione o difesa corre al punto di alzata, a rete un po' a destra del centro.","Quando è in prima linea mura, quando è in seconda linea difende in zona 1."],why:"il-perche/"},
+ {k:"O",name:"Opposto",ids:["O"],tag:"L'attaccante che non riceve.",does:["Attacca da zona 2, oppure da zona 1 dietro i 3 metri quando è in seconda linea.","Non riceve: si nasconde per pensare solo all'attacco.","Nella rotazione è sempre opposto al palleggiatore: quando uno è in prima linea, l'altro è in seconda.","Mura in zona 2 e in difesa sta in zona 1 quando il palleggiatore è a rete."],why:"il-perche/"},
+ {k:"C",name:"Centrale",ids:["C1","C2"],tag:"Il giocatore di rete.",does:["Attacca il primo tempo, vicino al palleggiatore.","È il perno del muro: mura su tutti gli attacchi e va a chiudere il muro a due a destra o a sinistra.","Non riceve.","Quando va in seconda linea esce, e al suo posto entra il libero. Sono due, opposti tra loro nella rotazione."],why:"il-perche/"},
+ {k:"S",name:"Schiacciatore",ids:["S1","S2"],tag:"L'attaccante completo.",does:["Riceve la battuta insieme al libero.","Attacca da zona 4 e, quando è in seconda linea, dal centro dietro i 3 metri (pipe).","Mura in zona 4 e in difesa sta in zona 6.","Sono due, opposti tra loro nella rotazione: uno è sempre in prima linea e uno in seconda."],why:"il-perche/"},
+ {k:"L",name:"Libero",ids:["L"],tag:"Lo specialista di ricezione e difesa.",does:["Entra al posto del centrale di seconda linea, senza contare come sostituzione.","Riceve e difende: è il miglior difensore della squadra.","Ha la maglia di un colore diverso dai compagni.","Non può battere, murare o tentare di murare, né attaccare una palla che è tutta sopra il bordo della rete."],why:"il-perche/"}
+];
+const XS="http://www.w3.org/2000/svg";
+const SC={W:"#eef2f8",Y:"#ffd23f",R:"#ff6b6b",T:"#2ec4b6",G:"#8aa0c2",N:"#0b1426"};
+function mk(){ return `<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>`; }
+function court(){ return `<rect x="30" y="20" width="540" height="720" fill="#e2843f"/><rect x="30" y="20" width="540" height="360" fill="#e2843f" opacity=".55"/><rect x="30" y="20" width="540" height="720" fill="none" stroke="#fff" stroke-width="5"/><line x1="30" y1="180" x2="570" y2="180" stroke="#fff" stroke-width="4"/><line x1="30" y1="580" x2="570" y2="580" stroke="#fff" stroke-width="4"/><rect x="14" y="374" width="572" height="12" fill="${SC.N}"/><text x="40" y="44" font-family="Saira Condensed, sans-serif" font-size="22" fill="#fff" fill-opacity=".85" letter-spacing="2">AVVERSARI</text><text x="40" y="726" font-family="Saira Condensed, sans-serif" font-size="22" fill="#fff" fill-opacity=".85" letter-spacing="2">NOI</text>`; }
+function tk(x,y,l,f,ring){ return `<g><circle cx="${x}" cy="${y}" r="24" fill="${f||"#fff"}" stroke="${ring||SC.N}" stroke-width="${ring?7:4}"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="central" font-family="Saira Condensed, sans-serif" font-weight="800" font-size="24" fill="${SC.N}">${l}</text></g>`; }
+function ar(d,c,dash){ return `<path d="${d}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" ${dash?'stroke-dasharray="12 9"':''} marker-end="url(#ah)"/>`; }
+function lbl(x,y,t,c){ return `<text x="${x}" y="${y}" font-family="Atkinson Hyperlegible, Arial, sans-serif" font-size="22" font-weight="700" fill="${c||"#fff"}" stroke="${SC.N}" stroke-width="5" paint-order="stroke">${t}</text>`; }
+function sv(body,h){ return `<svg viewBox="0 0 600 ${h||800}" role="img">${mk()}${court()}${body}</svg>`; }
+const SCHEME={
+ ace: sv(tk(200,250,"",SC.G)+tk(400,260,"",SC.G)+ar("M470 770 Q300 300 110 92",SC.Y)+tk(470,770,"B",SC.Y)+lbl(120,130,"Nessuno la tocca",SC.Y),800),
+ pipe: sv(tk(390,400,"P",SC.Y)+ar("M300 720 L300 640",SC.W,true)+tk(300,612,"S","#fff",SC.Y)+ar("M392 376 Q360 470 312 584",SC.Y,true)+ar("M300 586 L250 130",SC.R)+lbl(318,640,"Stacco dietro i 3 m")),
+ "primo-tempo": sv(tk(390,410,"P",SC.Y)+tk(320,420,"C","#fff",SC.Y)+ar("M390 386 Q372 340 334 392",SC.Y,true)+ar("M318 396 L220 140",SC.R)+lbl(340,470,"Alzata corta e bassa")),
+ fast: sv(tk(390,410,"P",SC.Y)+ar("M320 480 Q420 470 490 432",SC.W,true)+tk(505,420,"C","#fff",SC.Y)+ar("M392 386 Q450 350 494 396",SC.Y,true)+ar("M505 396 L380 120",SC.R)+lbl(250,530,"Corre dietro al palleggiatore")),
+ diagonale: sv(tk(70,410,"S","#fff",SC.Y)+ar("M80 388 L520 70",SC.R)+ar("M86 392 L548 318",SC.R,true)+lbl(350,120,"lunga",SC.R)+lbl(420,290,"stretta",SC.R)),
+ parallela: sv(tk(70,410,"S","#fff",SC.Y)+ar("M70 386 L70 60",SC.R)+lbl(90,140,"lungo la riga",SC.R)),
+ pallonetto: sv(tk(70,410,"S","#fff",SC.Y)+tk(64,350,"M",SC.G)+tk(128,350,"M",SC.G)+ar("M84 388 Q120 220 200 300",SC.Y,true)+lbl(210,290,"Dietro il muro, piano",SC.Y)),
+ "mani-out": sv(tk(70,410,"S","#fff",SC.Y)+tk(64,350,"M",SC.G)+ar("M74 388 L66 372",SC.R)+ar("M56 340 L8 210",SC.R)+lbl(100,230,"Fuori: punto nostro",SC.Y)),
+ penetrazione: sv(tk(140,620,"S")+tk(300,640,"L","#2ec4b6")+tk(450,620,"S")+ar("M480 690 Q470 520 400 422",SC.Y,true)+tk(480,700,"P",SC.Y)+tk(390,402,"",SC.Y)+lbl(240,470,"Appena l'avversario batte",SC.Y)),
+ copertura: sv(tk(80,404,"S","#fff",SC.Y)+tk(150,440,"C","#fff",SC.T)+tk(90,500,"5","#fff",SC.T)+tk(165,500,"P",SC.Y,SC.T)+tk(300,560,"6","#fff",SC.G)+tk(450,520,"1","#fff",SC.G)+lbl(200,640,"3 vicini, 2 lontani"))
+};
+function netSide(){ const one=(x0,ok)=>{ const by=ok?118:78; return `<g transform="translate(${x0},0)"><line x1="150" y1="120" x2="150" y2="260" stroke="#fff" stroke-width="6"/><line x1="60" y1="120" x2="240" y2="120" stroke="#fff" stroke-width="2" stroke-dasharray="8 6" opacity=".7"/><circle cx="132" cy="${by}" r="18" fill="${SC.Y}" stroke="${SC.N}" stroke-width="3"/><line x1="80" y1="200" x2="118" y2="${by+8}" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="72" cy="214" r="16" fill="none" stroke="#fff" stroke-width="6"/><text x="150" y="300" text-anchor="middle" font-family="Atkinson Hyperlegible, Arial, sans-serif" font-size="22" font-weight="700" fill="${ok?"#4cc38a":SC.R}">${ok?"Si può":"Fallo"}</text><text x="150" y="328" text-anchor="middle" font-family="Atkinson Hyperlegible, Arial, sans-serif" font-size="18" fill="#a3b3cf">${ok?"parte della palla sotto":"palla tutta sopra"}</text><text x="150" y="350" text-anchor="middle" font-family="Atkinson Hyperlegible, Arial, sans-serif" font-size="18" fill="#a3b3cf">il bordo della rete</text></g>`; }; return `<svg viewBox="0 0 600 370" role="img">${one(0,true)}${one(300,false)}</svg>`; }
+
+const REG=[
+ {k:"tocchi",t:"Tocchi",s:"Quanti tocchi? Il muro conta? Doppio tocco?",qa:[
+  ["Quanti tocchi?","Tre per squadra per rimandare la palla, più l'eventuale tocco di muro."],
+  ["Il muro conta?","No: dopo il muro restano tre tocchi, e chi ha murato può toccare di nuovo subito."],
+  ["Doppio tocco?","Lo stesso giocatore non può toccare due volte di fila. Eccezioni: dopo il muro, e al primo tocco di squadra (ricezione o difesa), dove la palla può toccare più parti del corpo una dopo l'altra, purché in un'unica azione."],
+  ["Si può colpire con i piedi?","Sì, la palla può toccare qualsiasi parte del corpo."],
+  ["Palla trattenuta?","La palla va colpita, non può essere fermata né lanciata."],
+  ["Due compagni la toccano insieme?","Contano come due tocchi (a muro invece no)."]],links:[["voc","doppia","Doppia"],["voc","trattenuta","Trattenuta"]]},
+ {k:"rete",t:"Rete",s:"Quando è fallo? Posso passare sotto?",qa:[
+  ["Toccare la rete è sempre fallo?","È fallo toccarla tra le antenne mentre si gioca la palla (stacco, colpo, atterraggio)."],
+  ["Posso passare sotto la rete?","Si può entrare sotto la rete senza disturbare gli avversari. Con il piede si può toccare il campo avversario solo se una parte del piede resta sulla linea centrale."],
+  ["Posso passare le mani oltre la rete?","A muro sì, ma senza toccare la palla prima del colpo d'attacco avversario. In attacco la mano può passare oltre solo dopo aver colpito la palla."],
+  ["La palla che tocca la rete è buona?","Sì, anche in battuta, se passa dall'altra parte tra le antenne."],
+  ["La palla che tocca l'antenna?","È fuori."]],links:[["voc","invasione","Invasione"],["voc","muro","Muro"]]},
+ {k:"posizioni",t:"Posizioni e rotazione",s:"Quando è fallo di posizione?",qa:[
+  ["Quando conta la posizione?","Solo al colpo di servizio, e solo per chi riceve. Chi batte può mettersi come vuole."],
+  ["Come si controlla?","Ogni avanti più vicino alla rete del suo difensore, e in ogni linea l'ordine da sinistra a destra. Contano i piedi a terra."],
+  ["Dopo il colpo di servizio?","Ci si muove liberamente."],
+  ["Quando si ruota?","Quando chi riceve conquista il servizio: un posto in senso orario."],
+  ["Cosa succede se si sbaglia?","Fallo di posizione o di rotazione: punto e servizio agli avversari."]],links:[["voc","rotazione","Rotazione"],["ext","../rotazioni-in-campo/","Gioca: Rotazioni in campo"]]},
+ {k:"attacco",t:"Attacco",s:"Chi può attaccare e da dove?",qa:[
+  ["Chi può attaccare?","La prima linea, a qualsiasi altezza. La seconda linea, sopra la rete, solo staccando da dietro la linea dei 3 metri. Può atterrare oltre la linea."],
+  ["Un giocatore di seconda linea dentro i 3 metri?","Dipende: può colpire solo se una parte della palla è sotto il bordo della rete.",true],
+  ["Si può attaccare la battuta avversaria?","No, se la palla è nella zona d'attacco e tutta sopra la rete."],
+  ["Si può colpire la palla sopra il campo avversario?","No, va colpita nel proprio spazio."],
+  ["Il pallonetto è regolare?","Sì, purché la palla sia colpita e non trattenuta."]],links:[["voc","pipe","Pipe"],["voc","zona-attacco","Zona d'attacco"],["voc","seconda-linea","Seconda linea"]]},
+ {k:"libero",t:"Libero",s:"Cosa può e non può fare?",qa:[
+  ["Chi sostituisce?","Qualsiasi giocatore di seconda linea, di solito il centrale. Non conta come sostituzione e si fa quante volte si vuole, ma tra un cambio e l'altro deve esserci un'azione completa."],
+  ["Chi può rientrare al suo posto?","Solo il giocatore che aveva sostituito, oppure il secondo libero."],
+  ["Il libero può attaccare?","Dipende: sì, se al momento del colpo una parte della palla è sotto il bordo della rete. No, se la palla è tutta sopra.",true],
+  ["Il libero può alzare?","Sì. Ma se alza in palleggio dentro la zona dei 3 metri, il compagno non può attaccare quella palla sopra la rete. Se alza da dietro i 3 metri, o in bagher, sì."],
+  ["Può battere o murare?","No."],
+  ["Perché ha la maglia diversa?","Così gli arbitri lo riconoscono subito. Si scambia solo a palla ferma, prima del fischio per il servizio."]],links:[["ruoli","L","Ruolo: Libero"],["voc","libero","Vocabolario: Libero"]]},
+ {k:"battuta",t:"Battuta",s:"Tempi, posizione e falli.",qa:[
+  ["Quanto tempo ho?","8 secondi dal fischio dell'arbitro."],
+  ["Da dove?","Dietro la linea di fondo, tra i prolungamenti delle linee laterali. Al colpo non devi toccare il campo, linea di fondo compresa. Dopo il colpo puoi entrare."],
+  ["Quanti lanci?","Uno solo: lanciata la palla, va colpita. Prima del lancio la puoi far rimbalzare o passare tra le mani."],
+  ["Con cosa si colpisce?","Con una mano o con il braccio."],
+  ["La battuta tocca la rete?","Se passa è buona. Se resta di qua, va fuori o tocca un compagno: fallo."],
+  ["Cos'è il velo?","I compagni non possono nascondere chi batte o la traiettoria della palla agli avversari: è fallo."],
+  ["Batte il giocatore sbagliato?","Fallo di rotazione, punto agli avversari."]],links:[["voc","ace","Ace"],["voc","float","Float"],["voc","velo","Velo"],["ext","../tecnica/#basso","Tecnica: la battuta"]]}
+];
+
+const VOC=[
+ {k:"ace",n:"Ace",d:"Punto diretto in battuta: la palla cade nel campo avversario senza che riescano a giocarla.",rel:["ricezione","float"],go:[["reg","battuta","Regole: la battuta"]]},
+ {k:"alzata",n:"Alzata",d:"Il secondo tocco, di solito in palleggio: prepara la palla per l'attaccante. La fa il palleggiatore.",rel:["punto-alzata","primo-tempo","palleggio"],go:[["ruoli","P","Ruolo: Palleggiatore"]]},
+ {k:"bagher",n:"Bagher",d:"Il tocco con gli avambracci uniti: si usa per ricevere e difendere.",rel:["ricezione","free-ball"],go:[["ext","../tecnica/#bagher","Tecnica: il bagher"]]},
+ {k:"banda",n:"Banda",d:"Il lato sinistro del campo, in zona 4. Lo schiacciatore di banda attacca da lì; \"palla in banda\" è l'alzata alta verso la zona 4.",rel:["diagonale","parallela"],go:[["ruoli","S","Ruolo: Schiacciatore"]]},
+ {k:"break",n:"Break",d:"Punto conquistato dalla squadra che sta battendo: tiene il servizio e batte ancora lo stesso giocatore.",rel:["cambio-palla","contrattacco"],go:[]},
+ {k:"cambio-palla",n:"Cambio palla (side-out)",d:"Punto conquistato dalla squadra che riceve: guadagna il servizio e ruota di un posto.",rel:["break","rotazione"],go:[["ext","../il-perche/","Il perché: l'attacco"]]},
+ {k:"contrattacco",n:"Contrattacco",d:"L'attacco che parte dopo una nostra difesa su un attacco avversario.",rel:["break","copertura"],go:[]},
+ {k:"copertura",n:"Copertura",d:"Quando attacchiamo, i compagni si mettono vicino all'attaccante per recuperare la palla se il muro la rimanda nel nostro campo.",rel:["muro","contrattacco"],go:[["ext","../il-perche/","Il perché: la copertura"]]},
+ {k:"diagonale",n:"Diagonale",d:"Attacco che attraversa il campo in obliquo. Lunga: verso l'angolo di fondo opposto. Stretta: corta e molto angolata, vicino alla rete.",rel:["parallela","banda"],go:[]},
+ {k:"doppia",n:"Doppia",d:"Fallo: lo stesso giocatore tocca la palla due volte di fila, oppure nel palleggio la palla parte dalle due mani in momenti diversi.",rel:["trattenuta","palleggio"],go:[["reg","tocchi","Regole: i tocchi"]]},
+ {k:"fast",n:"Fast",d:"Attacco veloce del centrale che corre dietro al palleggiatore e stacca su un piede solo.",rel:["primo-tempo","alzata"],go:[["ruoli","C","Ruolo: Centrale"]]},
+ {k:"float",n:"Float (flottante)",d:"Battuta senza rotazione: la palla oscilla in volo ed è difficile da ricevere.",rel:["ace","ricezione"],go:[["ext","../tecnica/#alto","Tecnica: battuta dall'alto"]]},
+ {k:"free-ball",n:"Free ball",d:"Palla facile che gli avversari rimandano senza attaccare, di bagher o di palleggio. Chi la riceve ha tempo per costruire un buon attacco.",rel:["bagher","contrattacco"],go:[]},
+ {k:"invasione",n:"Invasione",d:"Fallo: superare del tutto la linea centrale con il piede, o disturbare gli avversari passando sotto la rete.",rel:["muro"],go:[["reg","rete","Regole: la rete"]]},
+ {k:"libero",n:"Libero",d:"Lo specialista di ricezione e difesa, con la maglia di un altro colore. Entra al posto di un giocatore di seconda linea.",rel:["ricezione","seconda-linea"],go:[["ruoli","L","Ruolo: Libero"],["reg","libero","Regole: il libero"]]},
+ {k:"mani-out",n:"Mani-out (mani e fuori)",d:"L'attaccante colpisce le mani del muro e la palla va fuori: il punto è di chi attacca.",rel:["muro","parallela"],go:[["ext","../tecnica/#muro","Tecnica: il muro"]]},
+ {k:"muro",n:"Muro",d:"Il salto a rete per fermare l'attacco avversario. Può essere a uno, a due o a tre. Possono murare solo i giocatori di prima linea.",rel:["mani-out","prima-linea"],go:[["ext","../tecnica/#muro","Tecnica: il muro"],["ext","../muro-e-difesa/","Gioca: Muro e difesa"]]},
+ {k:"palleggio",n:"Palleggio",d:"Il tocco con le dita, sopra la fronte: il modo per alzare.",rel:["alzata","doppia","trattenuta"],go:[["ext","../tecnica/#palleggio","Tecnica: il palleggio"]]},
+ {k:"pallonetto",n:"Pallonetto",d:"Attacco \"finto\": invece di schiacciare, l'attaccante appoggia la palla piano oltre il muro, nella zona vuota.",rel:["muro","diagonale"],go:[]},
+ {k:"parallela",n:"Parallela (lungolinea)",d:"Attacco lungo la linea laterale, dritto davanti all'attaccante.",rel:["diagonale","mani-out"],go:[]},
+ {k:"penetrazione",n:"Penetrazione",d:"La corsa del palleggiatore di seconda linea verso il punto di alzata, appena l'avversario batte.",rel:["punto-alzata","alzata"],go:[["ruoli","P","Ruolo: Palleggiatore"]]},
+ {k:"pipe",n:"Pipe",d:"Attacco di seconda linea dal centro del campo, staccando dietro la linea dei 3 metri.",rel:["seconda-linea","zona-attacco"],go:[["ruoli","S","Ruolo: Schiacciatore"],["reg","attacco","Regole: l'attacco"]]},
+ {k:"prima-linea",n:"Prima linea",d:"I tre giocatori nelle zone 4, 3 e 2, vicino alla rete. Sono gli unici che possono murare.",rel:["seconda-linea","muro"],go:[["reg","posizioni","Regole: le posizioni"]]},
+ {k:"primo-tempo",n:"Primo tempo",d:"Attacco velocissimo del centrale: salta mentre la palla arriva al palleggiatore, e l'alzata è corta e bassa.",rel:["fast","alzata"],go:[["ruoli","C","Ruolo: Centrale"]]},
+ {k:"punto-alzata",n:"Punto di alzata",d:"Il punto a rete, un po' a destra del centro, dove il palleggiatore alza. La ricezione va mandata lì.",rel:["penetrazione","ricezione"],go:[]},
+ {k:"ricezione",n:"Ricezione",d:"Il primo tocco sulla battuta avversaria, di solito in bagher. Ricevono i due schiacciatori e il libero.",rel:["bagher","punto-alzata"],go:[["ext","../il-perche/","Il perché: la ricezione"]]},
+ {k:"rotazione",n:"Rotazione",d:"Lo spostamento di un posto in senso orario quando si conquista il servizio. Indica anche come si è disposti in campo (da P1 a P6).",rel:["cambio-palla","prima-linea"],go:[["reg","posizioni","Regole: le posizioni"],["ext","../rotazioni-in-campo/","Gioca: Rotazioni in campo"]]},
+ {k:"seconda-linea",n:"Seconda linea",d:"I tre giocatori nelle zone 5, 6 e 1, verso il fondo. Possono attaccare sopra la rete solo staccando da dietro la linea dei 3 metri.",rel:["prima-linea","pipe","zona-attacco"],go:[["reg","attacco","Regole: l'attacco"]]},
+ {k:"set",n:"Set",d:"Si vince arrivando a 25 punti con almeno 2 punti di vantaggio. La partita è al meglio dei 5 set: vince chi ne conquista 3.",rel:["tie-break","time-out"],go:[]},
+ {k:"tie-break",n:"Tie-break",d:"Il quinto set: si gioca a 15 punti, sempre con almeno 2 punti di vantaggio.",rel:["set"],go:[]},
+ {k:"time-out",n:"Time-out",d:"Pausa chiesta dall'allenatore: dura 30 secondi, al massimo due per squadra in ogni set.",rel:["set"],go:[]},
+ {k:"trattenuta",n:"Trattenuta",d:"Fallo: la palla viene fermata o accompagnata invece di essere colpita.",rel:["doppia","palleggio"],go:[["reg","tocchi","Regole: i tocchi"]]},
+ {k:"velo",n:"Velo",d:"Fallo della squadra che batte: i compagni nascondono agli avversari chi batte o la traiettoria della palla.",rel:["ace"],go:[["reg","battuta","Regole: la battuta"]]},
+ {k:"zona-attacco",n:"Zona d'attacco",d:"La parte di campo tra la rete e la linea dei 3 metri. Un giocatore di seconda linea non può attaccare sopra la rete staccando da lì.",rel:["seconda-linea","pipe"],go:[["reg","attacco","Regole: l'attacco"]]}
+];
+const ROLELINKS={P:[["voc","penetrazione","Penetrazione"],["voc","alzata","Alzata"],["voc","punto-alzata","Punto di alzata"]],O:[["voc","seconda-linea","Seconda linea"],["voc","diagonale","Diagonale"]],C:[["voc","primo-tempo","Primo tempo"],["voc","fast","Fast"],["voc","muro","Muro"]],S:[["voc","banda","Banda"],["voc","pipe","Pipe"],["voc","ricezione","Ricezione"]],L:[["reg","libero","Regole del libero"],["voc","libero","Libero"]]};
+
+const STAGES=[["ricezione","In ricezione"],["attacco","In attacco"],["difesa","In difesa"]];
+const st={role:0,stage:"ricezione",rot:0};
+
+function positions(){
+  const idx=st.rot, rot=SEQ[idx], pos={};
+  if(st.stage==="ricezione") for(const id in RECV[rot]) pos[id]=toCm(RECV[rot][id]);
+  if(st.stage==="attacco") for(const id in ATTACK[rot]) pos[id]=toCm(AT[ATTACK[rot][id]]);
+  if(st.stage==="difesa"){ const d=defIds(idx); for(const s of SLOTS) pos[d[s]]=toCm(DEF["4"][s]); }
+  return pos;
+}
+function zoneText(idx,id){ const z=zoneOf(idx,id); return z?`zona ${z} (${[2,3,4].includes(z)?"prima linea":"seconda linea"})`:null; }
+function render(){
+  const R=ROLES[st.role], idx=st.rot, rot=SEQ[idx], z=zonesOf(idx), mid=liberoFor(z);
+  const rc=document.getElementById("roleChips"); rc.textContent="";
+  ROLES.forEach((r,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=r.name; b.setAttribute("aria-pressed",i===st.role); b.addEventListener("click",()=>{ st.role=i; render(); }); rc.appendChild(b); });
+  document.getElementById("roleCard").innerHTML=`<p class="k">${R.name}</p><p class="tag">${R.tag}</p><p class="k" style="color:var(--muted)">Cosa fa</p><ul class="pr">${R.does.map(x=>`<li>${x}</li>`).join("")}</ul><div class="links">${linksHtml((ROLELINKS[R.k]||[]).concat([["ext","../"+R.why,"Il perché delle sue posizioni"]]))}</div>`;
+  const sb=document.getElementById("stageBox"); sb.textContent=""; sb.style.gridTemplateColumns="repeat(3,1fr)";
+  STAGES.forEach(([k,t])=>{ const b=document.createElement("button"); b.textContent=t; b.setAttribute("aria-pressed",k===st.stage); b.addEventListener("click",()=>{ st.stage=k; render(); }); sb.appendChild(b); });
+  const rcs=document.getElementById("rotChips"); rcs.textContent="";
+  SEQ.forEach((r,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=r; b.setAttribute("aria-pressed",i===idx); b.addEventListener("click",()=>{ st.rot=i; render(); }); rcs.appendChild(b); });
+  const pos=positions(), list=[];
+  for(const id in pos){ list.push({key:id,label:id,fill:fillOf(id),pos:pos[id],cls:R.ids.includes(id)?"att":"ghost"}); }
+  show(list);
+  if(st.stage==="difesa"){ const a=toCm(ATTPOS["4"]); opp.classList.remove("off"); place(opp,a[0],a[1]); } else opp.classList.add("off");
+  arrows(null);
+  const lines=[];
+  for(const id of R.ids){
+    if(id==="L"){ lines.push(`In ${rot} il libero gioca al posto di ${mid}, il centrale di seconda linea.`); continue; }
+    if(id===mid){ lines.push(`${id} è in zona ${Object.keys(z).find(k=>z[k]===id)} (seconda linea) di rotazione, ma è fuori: al suo posto gioca il libero.`); continue; }
+    lines.push(`${id}: in rotazione è in ${zoneText(idx,id)}.`);
+  }
+  const what={ricezione:"Al momento della battuta avversaria.",attacco:"Dopo la ricezione, quando si attacca.",difesa:"Quando attaccano gli avversari, qui da zona 4: ognuno nel suo posto di difesa."}[st.stage];
+  document.getElementById("where").innerHTML=`<p class="k">${R.name} · ${rot} · ${STAGES.find(x=>x[0]===st.stage)[1].toLowerCase()}</p><p>${what}</p>${lines.map(l=>`<p>${l}</p>`).join("")}<p class="lead">Bordo giallo: ${R.ids.length>1?"i giocatori":"il giocatore"} del ruolo.</p>`;
+}
+function linksHtml(list){
+  return list.map(([t,k,lab])=>{
+    if(t==="ext") return `<a href="${k}">${lab} ›</a>`;
+    const h=t==="voc"?"#vocabolario/"+k:t==="reg"?"#regole/"+k:"#ruoli/"+k;
+    return `<a href="${h}">${lab} ›</a>`;
+  }).join("");
+}
+const vs={reg:null,term:null,q:""};
+function renderReg(){
+  const g=document.getElementById("regGrid"); g.textContent="";
+  REG.forEach(r=>{ const b=document.createElement("button"); b.innerHTML=`<b>${r.t}</b><span>${r.s}</span>`; b.setAttribute("aria-pressed",r.k===vs.reg); b.addEventListener("click",()=>{ location.hash="regole/"+r.k; }); g.appendChild(b); });
+  const o=document.getElementById("regOut");
+  const r=REG.find(x=>x.k===vs.reg);
+  if(!r){ o.innerHTML=`<div class="card"><p>Scegli un argomento.</p></div>`; return; }
+  o.innerHTML=`<div class="card"><p class="k">${r.t}</p>${r.qa.map(([q,a,sch])=>`<details class="qa"><summary>${q}</summary><p>${a}</p>${sch?`<div class="scheme">${netSide()}</div>`:""}</details>`).join("")}<div class="links" style="margin-top:6px">${linksHtml(r.links)}</div></div>`;
+}
+function renderVoc(){
+  const box=document.getElementById("vChips"); box.textContent="";
+  const q=vs.q.trim().toLowerCase();
+  const list=VOC.slice().sort((a,b)=>a.n.localeCompare(b.n,"it")).filter(v=>!q||v.n.toLowerCase().includes(q)||v.d.toLowerCase().includes(q));
+  if(!list.length){ const s=document.createElement("p"); s.className="lead"; s.textContent="Nessuna parola trovata."; box.appendChild(s); }
+  list.forEach(v=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=v.n; b.setAttribute("aria-pressed",v.k===vs.term); b.addEventListener("click",()=>{ location.hash="vocabolario/"+v.k; }); box.appendChild(b); });
+  const o=document.getElementById("vOut"), v=VOC.find(x=>x.k===vs.term);
+  if(!v){ o.innerHTML=""; return; }
+  const rel=v.rel.map(k=>VOC.find(x=>x.k===k)).filter(Boolean);
+  o.innerHTML=`<div class="card"><p class="k">${v.n}</p><p>${v.d}</p>${SCHEME[v.k]?`<p class="k" style="color:var(--muted);margin-top:4px">Vedila sul campo</p><div class="scheme">${SCHEME[v.k]}</div>`:""}${rel.length?`<p class="k" style="color:var(--muted);margin-top:4px">Correlati</p><div class="links">${linksHtml(rel.map(x=>["voc",x.k,x.n]))}</div>`:""}${v.go.length?`<p class="k" style="color:var(--muted);margin-top:4px">Approfondisci</p><div class="links">${linksHtml(v.go)}</div>`:""}</div>`;
+}
+document.getElementById("vq").addEventListener("input",e=>{ vs.q=e.target.value; renderVoc(); });
+function route(){
+  const parts=(location.hash||"").replace("#","").split("/");
+  let v=parts[0]; if(!["ruoli","regole","vocabolario"].includes(v)) v="ruoli";
+  ["ruoli","regole","vocabolario"].forEach(n=>document.getElementById("v-"+n).hidden=n!==v);
+  document.querySelectorAll(".tabs a").forEach(a=>{ if(a.dataset.v===v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  const sub=parts[1]||null;
+  if(v==="ruoli"&&sub){ const i=ROLES.findIndex(r=>r.k===sub); if(i>=0){ st.role=i; render(); } }
+  if(v==="regole"){ vs.reg=REG.some(r=>r.k===sub)?sub:null; renderReg(); }
+  if(v==="vocabolario"){ vs.term=VOC.some(x=>x.k===sub)?sub:null; renderVoc(); }
+  if(sub){ const target=document.getElementById(v==="ruoli"?"roleCard":v==="regole"?"regOut":"vOut"); if(target) setTimeout(()=>target.scrollIntoView({block:"start",behavior:"smooth"}),30); }
+}
+window.addEventListener("hashchange",route);
+render(); route();
+})();
+</script>
+</body>
+</html>
